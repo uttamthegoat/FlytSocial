@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "19299368191",
+    "project_id": "flytsocial-21360",
+    "storage_bucket": "flytsocial-21360.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:19299368191:android:a00ccd098c9c144d4860ca",
+        "android_client_info": {
+          "package_name": "com.example.flytsocial"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "19299368191-vne9ijjmpij65soa8430sple136770sq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQrxcvbbym2I_NsjAZ1txqepuMydzUSZw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "19299368191-vne9ijjmpij65soa8430sple136770sq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "19299368191-soi7adou64tqb54dp88rhhbltj0lva0k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flytsocial"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
