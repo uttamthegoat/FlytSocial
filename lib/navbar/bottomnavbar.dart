@@ -5,6 +5,8 @@ import 'package:flytsocial/screens/new_post.dart';
 import 'package:flytsocial/screens/profile.dart';
 import 'package:flytsocial/screens/search.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flytsocial/state/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -24,10 +26,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
+        final user = Provider.of<UserProvider>(context).user;
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.black,
-      bottomNavigationBar: CurvedNavigationBar(
+      bottomNavigationBar: user!=null?CurvedNavigationBar(
               index: _selectedIndex,
               backgroundColor: Colors.transparent,
               items: const [
@@ -57,7 +60,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   _selectedIndex = index;
                 });
               },
-            ),
+            ):null,
       body: Screens[_selectedIndex],
     );
   }

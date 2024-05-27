@@ -12,29 +12,67 @@ class AppAuth extends StatefulWidget {
 }
 
 class _HomePageState extends State<AppAuth> {
-
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserProvider>(context).user;
     return Scaffold(
-      appBar: user == null?AppBar(
-        title: const Text("Google SignIn"),
-      ):null,
-      body: user != null ? const BottomNavBar() : _googleSignInButton(context),
+      appBar: user == null ? AppBar() : null,
+      body: user != null ? const BottomNavBar() : _AuthPage(context),
     );
   }
 
-  Widget _googleSignInButton(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        height: 50,
-        child: SignInButton(
-          Buttons.google,
-          text: "Sign up with Google",
-          onPressed: ()async{
-            await Provider.of<UserProvider>(context, listen: false).signIn();
-          },
-        ),
+  Widget _AuthPage(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Text(
+            'Welcome to',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w900,
+              fontSize: 30,
+            ),
+          ),
+          Column(
+            children: <Widget>[
+              Image.asset(
+                'assets/applogo.png', // Replace with your logo image path
+                height: 300.0,
+                width: 300.0,
+              ),
+              const Text(
+                'FlytSocial',
+                style: TextStyle(
+                  fontSize: 50.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 90),
+          SizedBox(
+            height: 50,
+            width: 250,
+            child: SignInButton(
+              Buttons.google,
+              text: "Sign up with Google",
+              elevation: 20,
+              onPressed: () async {
+                await Provider.of<UserProvider>(context, listen: false)
+                    .signIn();
+              },
+            ),
+          ),
+          const SizedBox(height: 50,),
+          SizedBox(
+            width: double.infinity,
+            child: Image.asset(
+              'assets/auth_page_design.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+        ],
       ),
     );
   }
