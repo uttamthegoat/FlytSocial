@@ -4,6 +4,7 @@ import 'package:flytsocial/firebase_options.dart';
 import 'package:flytsocial/navbar/bottomnavbar.dart';
 import 'package:flytsocial/screens/auth.dart';
 import 'package:flytsocial/screens/post_item.dart';
+import 'package:flytsocial/screens/users_profile.dart';
 import 'package:flytsocial/state/auth_state_provider.dart';
 import 'package:flytsocial/state/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         '/auth': (context) => const AppAuth(),
         '/home': (context) => const MainApp(),
         '/postitem': (context) => const PostItem(),
+        '/userprofile': (context) => const UserProfile(),
       },
     );
   }
