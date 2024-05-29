@@ -10,8 +10,8 @@ class PostItem extends StatefulWidget {
 class _PostItemState extends State<PostItem> {
   bool _isExpanded = false;
   bool _isLiked = false;
-  int _commentCount = 0;
   TextEditingController _commentController = TextEditingController();
+  List<String> _comments = [];
 
   void _toggleExpand() {
     setState(() {
@@ -27,8 +27,17 @@ class _PostItemState extends State<PostItem> {
 
   void _incrementCommentCount() {
     setState(() {
-      _commentCount++;
+      _isExpanded = true;  // Show the comment section when the comment button is pressed
     });
+  }
+
+  void _addComment() {
+    if (_commentController.text.isNotEmpty) {
+      setState(() {
+        _comments.add('Username: ${_commentController.text}');
+        _commentController.clear();
+      });
+    }
   }
 
   @override
@@ -67,7 +76,7 @@ class _PostItemState extends State<PostItem> {
             ),
             // Post Image
             Container(
-              height: 500, 
+              height: 500,
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
@@ -90,39 +99,9 @@ class _PostItemState extends State<PostItem> {
                     onPressed: _toggleLike,
                   ),
                   const SizedBox(width: 8),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.comment),
-                        onPressed: _incrementCommentCount,
-                      ),
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: _commentCount > 0
-                            ? Container(
-                                padding: EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                constraints: BoxConstraints(
-                                  minWidth: 16,
-                                  minHeight: 16,
-                                ),
-                                child: Text(
-                                  '$_commentCount',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              )
-                            : Container(),
-                      ),
-                    ],
+                  IconButton(
+                    icon: Icon(Icons.comment),
+                    onPressed: _incrementCommentCount,
                   ),
                 ],
               ),
@@ -162,16 +141,19 @@ class _PostItemState extends State<PostItem> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Dummy comments, replace with actual data
-                    ListTile(
-                      title: Text('Comment 1: This is a great post!'),
-                    ),
-                    ListTile(
-                      title: Text('Comment 2: Love this!'),
-                    ),
-                    ListTile(
-                      title: Text('Comment 3: Amazing!'),
-                    ),
+                    // Display comments
+                    for (var comment in _comments)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Text(
+                          comment,
+                          style: TextStyle(
+                            color: Colors.black, // Darker font color
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold, // Increased font weight
+                          ),
+                        ),
+                      ),
                     // Text Field for Adding Comments
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -181,12 +163,7 @@ class _PostItemState extends State<PostItem> {
                           hintText: 'Add a comment...',
                           suffixIcon: IconButton(
                             icon: Icon(Icons.send),
-                            onPressed: () {
-                              // Handle comment sending
-                              // For demonstration, just increment comment count
-                              _incrementCommentCount();
-                              _commentController.clear();
-                            },
+                            onPressed: _addComment,
                           ),
                         ),
                       ),
