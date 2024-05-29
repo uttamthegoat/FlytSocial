@@ -21,7 +21,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
     const AppSearch(),
     const NewPost(),
     const About(),
-    const Profile(),
+     Profile(),
   ];
   int _selectedIndex = 0;
   @override

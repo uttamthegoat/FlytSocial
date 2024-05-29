@@ -4,6 +4,7 @@ import 'package:flytsocial/firebase_options.dart';
 import 'package:flytsocial/navbar/bottomnavbar.dart';
 import 'package:flytsocial/screens/auth.dart';
 import 'package:flytsocial/screens/post_item.dart';
+import 'package:flytsocial/screens/profile.dart'; 
 import 'package:flytsocial/screens/users_profile.dart';
 import 'package:flytsocial/state/auth_state_provider.dart';
 import 'package:flytsocial/state/user_provider.dart';
@@ -21,7 +22,6 @@ void main() async {
       child: const MyApp(),
     ),
   );
-
 }
 
 class MyApp extends StatelessWidget {
@@ -42,6 +42,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const MainApp(),
         '/postitem': (context) => const PostItem(),
         '/userprofile': (context) => const UserProfile(),
+        '/profile': (context) => Profile(), // Added route for ProfilePage
       },
     );
   }
