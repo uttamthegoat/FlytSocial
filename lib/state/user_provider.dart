@@ -6,9 +6,17 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class UserProvider with ChangeNotifier {
   User? _user;
+  dynamic curUser = <String, dynamic>{
+    "name": "",
+    "email": "",
+    "imageUrl": "",
+    "bio": "",
+    "username": "",
+  };
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   User? get user => _user;
+  get curentUser => curUser;
 
   UserProvider() {
     _auth.authStateChanges().listen(_onAuthStateChanged);
@@ -16,9 +24,15 @@ class UserProvider with ChangeNotifier {
 
   void _onAuthStateChanged(User? user) {
     _user = user;
+    curUser = {
+    "name": "",
+    "email": "",
+    "imageUrl": "",
+    "bio": "",
+    "username": "",
+  };
     notifyListeners();
   }
-
 
   Future<void> signOut() async {
     await _auth.signOut();
@@ -42,8 +56,6 @@ class UserProvider with ChangeNotifier {
 
       if (_user?.emailVerified ?? false) {
         // database code
-        if(!(await emailExists(_user?.email))){
-
         final newUser = <String, dynamic>{
           "name": _user?.displayName,
           "email": _user?.email,
@@ -53,11 +65,12 @@ class UserProvider with ChangeNotifier {
               ? await generateUsername(_user?.displayName)
               : _user?.email,
         };
-        final db = FirebaseFirestore.instance;
-        db.collection("users").add(newUser).then((DocumentReference doc) =>
-            print('DocumentSnapshot added with ID: ${doc.id}'));
+        if (!(await emailExists(_user?.email))) {
+          final db = FirebaseFirestore.instance;
+          db.collection("users").add(newUser).then((DocumentReference doc) =>
+              print('DocumentSnapshot added with ID: ${doc.id}'));
         }
-
+        curUser = newUser;
         notifyListeners();
       } else {
         print('User email is not verified.');

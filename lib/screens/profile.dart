@@ -7,7 +7,9 @@ class Profile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserProvider>(context).user;
+    // final user = Provider.of<UserProvider>(context).user;
+    final curUser = Provider.of<UserProvider>(context).curentUser;
+    print(curUser);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -16,23 +18,25 @@ class Profile extends StatelessWidget {
       body: Container(
         child: Column(
           children: [
-          Container(
-            height: 100,
-            width: 100,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(user!.photoURL!),
+            Container(
+              height: 100,
+              width: 100,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(curUser['imageUrl']),
+                ),
               ),
             ),
-          ),
-          Text(user.email!),
-          Text(user.displayName ?? ""),
-          MaterialButton(
-            color: Colors.red,
-            onPressed: ()async => await Provider.of<UserProvider>(context, listen: false).signOut(),
-            child: const Text("Sign Out"),
-          )
-        ],
+            Text(curUser['email']),
+            Text(curUser['name']),
+            MaterialButton(
+              color: Colors.red,
+              onPressed: () async =>
+                  await Provider.of<UserProvider>(context, listen: false)
+                      .signOut(),
+              child: const Text("Sign Out"),
+            )
+          ],
         ),
       ),
     );
