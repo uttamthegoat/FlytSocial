@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:go_router/go_router.dart";
 
 // screens
-import "package:flytsocial/screens/profile.dart";
+import 'package:flytsocial/screens/profile.dart';
 import "package:flytsocial/screens/home.dart";
 
 
@@ -18,7 +18,7 @@ class MyAppRouter {
         name: 'profile',
         path: '/profile',
         pageBuilder: (context, state) {
-          return const MaterialPage(child: Profile());
+          return MaterialPage(child: Profile());
         })
   ]);
 }
