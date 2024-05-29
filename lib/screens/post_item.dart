@@ -10,8 +10,8 @@ class PostItem extends StatefulWidget {
 class _PostItemState extends State<PostItem> {
   bool _isExpanded = false;
   bool _isLiked = false;
-  TextEditingController _commentController = TextEditingController();
-  List<String> _comments = [];
+  final TextEditingController _commentController = TextEditingController();
+  final List<String> _comments = [];
 
   void _toggleExpand() {
     setState(() {
@@ -53,8 +53,8 @@ class _PostItemState extends State<PostItem> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // User Info Row
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -63,8 +63,8 @@ class _PostItemState extends State<PostItem> {
                       'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.NKmW4Br5F_PRJzZtLUJAcQHaEK%26pid%3DApi&f=1&ipt=9197b404c87ed115200584a4945895e2efe69a66e76f21b1caaf4b79c2898ef2&ipo=images',
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  const Text(
+                  SizedBox(width: 10),
+                  Text(
                     'Username',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -78,7 +78,7 @@ class _PostItemState extends State<PostItem> {
             Container(
               height: 500,
               width: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: NetworkImage(
                       'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.NKmW4Br5F_PRJzZtLUJAcQHaEK%26pid%3DApi&f=1&ipt=9197b404c87ed115200584a4945895e2efe69a66e76f21b1caaf4b79c2898ef2&ipo=images'),
@@ -100,7 +100,7 @@ class _PostItemState extends State<PostItem> {
                   ),
                   const SizedBox(width: 8),
                   IconButton(
-                    icon: Icon(Icons.comment),
+                    icon: const Icon(Icons.comment),
                     onPressed: _incrementCommentCount,
                   ),
                 ],
@@ -110,14 +110,14 @@ class _PostItemState extends State<PostItem> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: RichText(
-                text: TextSpan(
-                  style: const TextStyle(color: Colors.black),
+                text: const TextSpan(
+                  style: TextStyle(color: Colors.black),
                   children: [
-                    const TextSpan(
+                    TextSpan(
                       text: 'Username ',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const TextSpan(
+                    TextSpan(
                       text: ' #dbz #vegeta',
                     ),
                   ],
@@ -131,7 +131,7 @@ class _PostItemState extends State<PostItem> {
                 onTap: _toggleExpand,
                 child: Text(
                   _isExpanded ? 'Hide comments' : 'View all comments',
-                  style: TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.grey),
                 ),
               ),
             ),
@@ -147,7 +147,7 @@ class _PostItemState extends State<PostItem> {
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: Text(
                           comment,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black, // Darker font color
                             fontSize: 14,
                             fontWeight: FontWeight.bold, // Increased font weight
@@ -162,7 +162,7 @@ class _PostItemState extends State<PostItem> {
                         decoration: InputDecoration(
                           hintText: 'Add a comment...',
                           suffixIcon: IconButton(
-                            icon: Icon(Icons.send),
+                            icon: const Icon(Icons.send),
                             onPressed: _addComment,
                           ),
                         ),
