@@ -44,8 +44,8 @@ class _PostItemState extends State<PostItem> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // User Info Row
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -54,8 +54,8 @@ class _PostItemState extends State<PostItem> {
                       'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.NKmW4Br5F_PRJzZtLUJAcQHaEK%26pid%3DApi&f=1&ipt=9197b404c87ed115200584a4945895e2efe69a66e76f21b1caaf4b79c2898ef2&ipo=images',
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  const Text(
+                  SizedBox(width: 10),
+                  Text(
                     'Username',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -69,7 +69,7 @@ class _PostItemState extends State<PostItem> {
             Container(
               height: 500, 
               width: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: NetworkImage(
                       'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.NKmW4Br5F_PRJzZtLUJAcQHaEK%26pid%3DApi&f=1&ipt=9197b404c87ed115200584a4945895e2efe69a66e76f21b1caaf4b79c2898ef2&ipo=images'),
@@ -94,7 +94,7 @@ class _PostItemState extends State<PostItem> {
                     alignment: Alignment.center,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.comment),
+                        icon: const Icon(Icons.comment),
                         onPressed: _incrementCommentCount,
                       ),
                       Positioned(
@@ -102,18 +102,18 @@ class _PostItemState extends State<PostItem> {
                         top: 0,
                         child: _commentCount > 0
                             ? Container(
-                                padding: EdgeInsets.all(2),
+                                padding: const EdgeInsets.all(2),
                                 decoration: BoxDecoration(
                                   color: Colors.red,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                constraints: BoxConstraints(
+                                constraints: const BoxConstraints(
                                   minWidth: 16,
                                   minHeight: 16,
                                 ),
                                 child: Text(
                                   '$_commentCount',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 10,
                                   ),
@@ -131,14 +131,14 @@ class _PostItemState extends State<PostItem> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: RichText(
-                text: TextSpan(
-                  style: const TextStyle(color: Colors.black),
+                text: const TextSpan(
+                  style: TextStyle(color: Colors.black),
                   children: [
-                    const TextSpan(
+                    TextSpan(
                       text: 'Username ',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const TextSpan(
+                    TextSpan(
                       text: ' #dbz #vegeta',
                     ),
                   ],
@@ -152,7 +152,7 @@ class _PostItemState extends State<PostItem> {
                 onTap: _toggleExpand,
                 child: Text(
                   _isExpanded ? 'Hide comments' : 'View all comments',
-                  style: TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.grey),
                 ),
               ),
             ),
@@ -163,13 +163,13 @@ class _PostItemState extends State<PostItem> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Dummy comments, replace with actual data
-                    ListTile(
+                    const ListTile(
                       title: Text('Comment 1: This is a great post!'),
                     ),
-                    ListTile(
+                    const ListTile(
                       title: Text('Comment 2: Love this!'),
                     ),
-                    ListTile(
+                    const ListTile(
                       title: Text('Comment 3: Amazing!'),
                     ),
                     // Text Field for Adding Comments
@@ -180,7 +180,7 @@ class _PostItemState extends State<PostItem> {
                         decoration: InputDecoration(
                           hintText: 'Add a comment...',
                           suffixIcon: IconButton(
-                            icon: Icon(Icons.send),
+                            icon: const Icon(Icons.send),
                             onPressed: () {
                               // Handle comment sending
                               // For demonstration, just increment comment count
