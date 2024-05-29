@@ -10,8 +10,8 @@ class PostItem extends StatefulWidget {
 class _PostItemState extends State<PostItem> {
   bool _isExpanded = false;
   bool _isLiked = false;
-  int _commentCount = 0;
   TextEditingController _commentController = TextEditingController();
+  List<String> _comments = [];
 
   void _toggleExpand() {
     setState(() {
@@ -27,8 +27,17 @@ class _PostItemState extends State<PostItem> {
 
   void _incrementCommentCount() {
     setState(() {
-      _commentCount++;
+      _isExpanded = true;  // Show the comment section when the comment button is pressed
     });
+  }
+
+  void _addComment() {
+    if (_commentController.text.isNotEmpty) {
+      setState(() {
+        _comments.add('Username: ${_commentController.text}');
+        _commentController.clear();
+      });
+    }
   }
 
   @override
@@ -44,8 +53,8 @@ class _PostItemState extends State<PostItem> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // User Info Row
-            const Padding(
-              padding: EdgeInsets.all(8.0),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -54,8 +63,8 @@ class _PostItemState extends State<PostItem> {
                       'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.NKmW4Br5F_PRJzZtLUJAcQHaEK%26pid%3DApi&f=1&ipt=9197b404c87ed115200584a4945895e2efe69a66e76f21b1caaf4b79c2898ef2&ipo=images',
                     ),
                   ),
-                  SizedBox(width: 10),
-                  Text(
+                  const SizedBox(width: 10),
+                  const Text(
                     'Username',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -67,9 +76,9 @@ class _PostItemState extends State<PostItem> {
             ),
             // Post Image
             Container(
-              height: 500, 
+              height: 500,
               width: double.infinity,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 image: DecorationImage(
                   image: NetworkImage(
                       'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.NKmW4Br5F_PRJzZtLUJAcQHaEK%26pid%3DApi&f=1&ipt=9197b404c87ed115200584a4945895e2efe69a66e76f21b1caaf4b79c2898ef2&ipo=images'),
@@ -90,39 +99,9 @@ class _PostItemState extends State<PostItem> {
                     onPressed: _toggleLike,
                   ),
                   const SizedBox(width: 8),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.comment),
-                        onPressed: _incrementCommentCount,
-                      ),
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: _commentCount > 0
-                            ? Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                constraints: const BoxConstraints(
-                                  minWidth: 16,
-                                  minHeight: 16,
-                                ),
-                                child: Text(
-                                  '$_commentCount',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              )
-                            : Container(),
-                      ),
-                    ],
+                  IconButton(
+                    icon: Icon(Icons.comment),
+                    onPressed: _incrementCommentCount,
                   ),
                 ],
               ),
@@ -131,14 +110,14 @@ class _PostItemState extends State<PostItem> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: RichText(
-                text: const TextSpan(
-                  style: TextStyle(color: Colors.black),
+                text: TextSpan(
+                  style: const TextStyle(color: Colors.black),
                   children: [
-                    TextSpan(
+                    const TextSpan(
                       text: 'Username ',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    TextSpan(
+                    const TextSpan(
                       text: ' #dbz #vegeta',
                     ),
                   ],
@@ -152,7 +131,7 @@ class _PostItemState extends State<PostItem> {
                 onTap: _toggleExpand,
                 child: Text(
                   _isExpanded ? 'Hide comments' : 'View all comments',
-                  style: const TextStyle(color: Colors.grey),
+                  style: TextStyle(color: Colors.grey),
                 ),
               ),
             ),
@@ -162,16 +141,19 @@ class _PostItemState extends State<PostItem> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Dummy comments, replace with actual data
-                    const ListTile(
-                      title: Text('Comment 1: This is a great post!'),
-                    ),
-                    const ListTile(
-                      title: Text('Comment 2: Love this!'),
-                    ),
-                    const ListTile(
-                      title: Text('Comment 3: Amazing!'),
-                    ),
+                    // Display comments
+                    for (var comment in _comments)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Text(
+                          comment,
+                          style: TextStyle(
+                            color: Colors.black, // Darker font color
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold, // Increased font weight
+                          ),
+                        ),
+                      ),
                     // Text Field for Adding Comments
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -180,13 +162,8 @@ class _PostItemState extends State<PostItem> {
                         decoration: InputDecoration(
                           hintText: 'Add a comment...',
                           suffixIcon: IconButton(
-                            icon: const Icon(Icons.send),
-                            onPressed: () {
-                              // Handle comment sending
-                              // For demonstration, just increment comment count
-                              _incrementCommentCount();
-                              _commentController.clear();
-                            },
+                            icon: Icon(Icons.send),
+                            onPressed: _addComment,
                           ),
                         ),
                       ),
