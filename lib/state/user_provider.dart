@@ -7,6 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 class UserProvider with ChangeNotifier {
   User? _user;
   dynamic curUser = <String, dynamic>{
+    "userId": "",
     "name": "",
     "email": "",
     "imageUrl": "",
@@ -16,7 +17,7 @@ class UserProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   User? get user => _user;
-  get curentUser => curUser;
+  get currentUser => curUser;
 
   UserProvider() {
     _auth.authStateChanges().listen(_onAuthStateChanged);
@@ -24,18 +25,19 @@ class UserProvider with ChangeNotifier {
 
   void _onAuthStateChanged(User? user) {
     _user = user;
-    curUser = {
-    "name": "",
-    "email": "",
-    "imageUrl": "",
-    "bio": "",
-    "username": "",
-  };
     notifyListeners();
   }
 
   Future<void> signOut() async {
     await _auth.signOut();
+    curUser = {
+      "userId": "",
+      "name": "",
+      "email": "",
+      "imageUrl": "",
+      "bio": "",
+      "username": "",
+    };
     _user = null;
   }
 
@@ -56,7 +58,8 @@ class UserProvider with ChangeNotifier {
 
       if (_user?.emailVerified ?? false) {
         // database code
-        final newUser = <String, dynamic>{
+        var newUser = <String, dynamic>{
+          "userId": "",
           "name": _user?.displayName,
           "email": _user?.email,
           "imageUrl": _user?.photoURL,
@@ -67,8 +70,22 @@ class UserProvider with ChangeNotifier {
         };
         if (!(await emailExists(_user?.email))) {
           final db = FirebaseFirestore.instance;
-          db.collection("users").add(newUser).then((DocumentReference doc) =>
-              print('DocumentSnapshot added with ID: ${doc.id}'));
+          db
+              .collection("users")
+              .add(newUser)
+              .then((DocumentReference doc) => newUser['userId'] = doc.id);
+        } else {
+          final checkEmail = _user?.email;
+          final snapshot= await FirebaseFirestore.instance
+              .collection('users')
+              .where('email', isEqualTo: checkEmail)
+              .get();
+          newUser['userId'] = snapshot.docs.first.id;
+          newUser['name'] = snapshot.docs.first.data()['name'];
+          newUser['email'] = snapshot.docs.first.data()['email'];
+          newUser['imageUrl'] = snapshot.docs.first.data()['imageUrl'];
+          newUser['bio'] = snapshot.docs.first.data()['bio'];
+          newUser['username'] = snapshot.docs.first.data()['username'];
         }
         curUser = newUser;
         notifyListeners();

@@ -21,8 +21,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     // final user = Provider.of<UserProvider>(context).user;
-    final curUser = Provider.of<UserProvider>(context).curentUser;
-    print(curUser);
+    final curUser = Provider.of<UserProvider>(context).currentUser;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -34,8 +33,8 @@ class _ProfileState extends State<Profile> {
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
-              _buildProfileHeader(),
-              _buildProfileDetails(),
+              _buildProfileHeader(curUser),
+              _buildProfileDetails(curUser),
               _buildProfileActions(),
               _buildTabs(),
             ],
@@ -45,25 +44,25 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader(Map<String, dynamic> curUser) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 40,
             backgroundImage: NetworkImage(
-                'https://i.pinimg.com/736x/36/7e/39/367e39a52d963b9ac380c9ea3012ca25.jpg'), // Replace with your image URL
+                curUser['imageUrl']), // Replace with your image URL
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Username',
-                  style: TextStyle(
+                Text(
+                  curUser['username'],
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                     color: Colors.deepPurple,
@@ -94,24 +93,17 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildProfileDetails() {
-    return const Padding(
+  Widget _buildProfileDetails(Map<String, dynamic> curUser) {
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 8),
           Text(
-            'Vipulnayak-The One piece is real',
-            style: TextStyle(
+            curUser['bio'],
+            style: const TextStyle(
               color: Colors.black87,
-            ),
-          ),
-          Text(
-            'Website link goes here',
-            style: TextStyle(
-              color: Colors.blue,
-              // decoration: TextDecoration,
             ),
           ),
         ],
@@ -191,17 +183,19 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildButton(String text) {
     return OutlinedButton(
-      onPressed: () {
+      onPressed: () async {
         // Handle button press
         if (text == 'Sign Out') {
           // Implement sign out functionality here
+          await Provider.of<UserProvider>(context, listen: false)
+                      .signOut();
         }
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.deepPurple,
-        side: const BorderSide(color: Colors.deepPurple),
+        foregroundColor: text=="Sign Out"?Colors.red[800]:Colors.deepPurple,
+        side: BorderSide(color: text=="Sign Out"?Colors.red:Colors.deepPurple),
       ),
-      child: Text(text),
+      child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold),),
     );
   }
 }
