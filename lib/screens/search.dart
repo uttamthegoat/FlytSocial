@@ -64,6 +64,48 @@ class _SearchScreenState extends State<SearchScreen> {
       'username': 'username4',
       'name': 'name',
     },
+    {
+      'id': '3',
+      'image': 'https://via.placeholder.com/150',
+      'username': 'username3',
+      'name': 'name',
+    },
+    {
+      'id': '4',
+      'image': 'https://via.placeholder.com/150',
+      'username': 'username4',
+      'name': 'name',
+    },
+    {
+      'id': '3',
+      'image': 'https://via.placeholder.com/150',
+      'username': 'username3',
+      'name': 'name',
+    },
+    {
+      'id': '4',
+      'image': 'https://via.placeholder.com/150',
+      'username': 'username4',
+      'name': 'name',
+    },
+    {
+      'id': '4',
+      'image': 'https://via.placeholder.com/150',
+      'username': 'username4',
+      'name': 'name',
+    },
+    {
+      'id': '3',
+      'image': 'https://via.placeholder.com/150',
+      'username': 'username3',
+      'name': 'name',
+    },
+    {
+      'id': '4',
+      'image': 'https://via.placeholder.com/150',
+      'username': 'username4',
+      'name': 'name',
+    },
     // Add more user data as needed
   ];
 

@@ -26,11 +26,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
-        final user = Provider.of<UserProvider>(context).user;
+    final user = Provider.of<UserProvider>(context).user;
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.black,
-      bottomNavigationBar: user!=null?CurvedNavigationBar(
+      bottomNavigationBar: user != null
+          ? CurvedNavigationBar(
               index: _selectedIndex,
               backgroundColor: Colors.transparent,
               items: const [
@@ -60,7 +61,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   _selectedIndex = index;
                 });
               },
-            ):null,
+            )
+          : null,
       body: Screens[_selectedIndex],
     );
   }
