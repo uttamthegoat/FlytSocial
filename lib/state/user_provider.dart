@@ -1,19 +1,38 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+Future<void> storeUser(String key, dynamic user) async {
+  final prefs = await SharedPreferences.getInstance();
+  final jsonUser = jsonEncode(user);
+  await prefs.setString(key, jsonUser);
+}
+
+Future<dynamic> getUser(String key) async {
+  final prefs = await SharedPreferences.getInstance();
+  final userJson = prefs.getString(key);
+  if (userJson == null) {
+    final defaultUser = <String, dynamic>{
+      "userId": "",
+      "name": "",
+      "email": "",
+      "imageUrl": "",
+      "bio": "",
+      "username": "",
+    };
+    return defaultUser; // No user data found
+  }
+  return userJson;
+}
 
 class UserProvider with ChangeNotifier {
   User? _user;
-  dynamic curUser = <String, dynamic>{
-    "userId": "",
-    "name": "",
-    "email": "",
-    "imageUrl": "",
-    "bio": "",
-    "username": "",
-  };
+
+  dynamic curUser;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   User? get user => _user;
@@ -39,6 +58,8 @@ class UserProvider with ChangeNotifier {
       "username": "",
     };
     _user = null;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('myMapKey');
   }
 
 // this is in use
@@ -76,7 +97,7 @@ class UserProvider with ChangeNotifier {
               .then((DocumentReference doc) => newUser['userId'] = doc.id);
         } else {
           final checkEmail = _user?.email;
-          final snapshot= await FirebaseFirestore.instance
+          final snapshot = await FirebaseFirestore.instance
               .collection('users')
               .where('email', isEqualTo: checkEmail)
               .get();
@@ -138,5 +159,11 @@ class UserProvider with ChangeNotifier {
         .where('email', isEqualTo: email)
         .get();
     return snapshot.docs.isNotEmpty;
+  }
+
+  Future<void> setUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('curuser');
+    curUser = json.decode(jsonString!);
   }
 }

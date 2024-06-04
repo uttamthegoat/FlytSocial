@@ -42,8 +42,22 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
   const MainPage({super.key});
+  @override
+  MainAppState createState() => MainAppState();
+}
+
+class MainAppState extends State<MainPage> {
+  late Map<String, dynamic> curUser;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeUser().then((_) {
+       // Trigger a rebuild to reflect changes in curUser
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,5 +73,9 @@ class MainPage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  initializeUser() async {
+    await Provider.of<UserProvider>(context, listen: false).setUserInfo();
   }
 }
