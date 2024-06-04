@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flytsocial/screens/about.dart';
 import 'package:flytsocial/screens/home.dart';
@@ -5,8 +6,6 @@ import 'package:flytsocial/screens/new_post.dart';
 import 'package:flytsocial/screens/profile.dart';
 import 'package:flytsocial/screens/search.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:flytsocial/state/user_provider.dart';
-import 'package:provider/provider.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -15,24 +14,46 @@ class BottomNavBar extends StatefulWidget {
   State<BottomNavBar> createState() => _BottomNavBarState();
 }
 
+int _currentIndex = 0;
+
 class _BottomNavBarState extends State<BottomNavBar> {
-  List Screens = [
-    const Home(),
-    const AppSearch(),
-    const NewPost(),
-    const About(),
-     Profile(),
-  ];
-  int _selectedIndex = 0;
+  late PageController pageController;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    pageController.dispose();
+  }
+
+  onPageChanged(int page) {
+    setState(() {
+      _currentIndex = page;
+    });
+  }
+
+  navigationTapped(int page) {
+    pageController.jumpToPage(page);
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserProvider>(context).user;
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.black,
-      bottomNavigationBar: user != null
-          ? CurvedNavigationBar(
-              index: _selectedIndex,
+      bottomNavigationBar: Container(
+      child: CurvedNavigationBar(
+              index: _currentIndex,
               backgroundColor: Colors.transparent,
               items: const [
                 Icon(
@@ -56,14 +77,20 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   size: 30,
                 ),
               ],
-              onTap: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
+              onTap: navigationTapped,
             )
-          : null,
-      body: Screens[_selectedIndex],
+      ),      // body: Screens[_selectedIndex],
+      body: PageView(
+        controller: pageController,
+        onPageChanged: onPageChanged,
+        children: [
+          const Home(),
+          const AppSearch(),
+          const NewPost(),
+          const About(),
+          Profile(),
+        ],
+      ),
     );
   }
 }

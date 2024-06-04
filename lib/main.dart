@@ -1,13 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flytsocial/firebase_options.dart';
 import 'package:flytsocial/navbar/bottomnavbar.dart';
+import 'package:flytsocial/routes/app_routes_config.dart';
 import 'package:flytsocial/screens/auth.dart';
-import 'package:flytsocial/screens/post_item.dart';
-import 'package:flytsocial/screens/users_profile.dart';
 import 'package:flytsocial/state/auth_state_provider.dart';
 import 'package:flytsocial/state/user_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,38 +36,28 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
-      home: const _AppWrapper(),
-      routes: {
-        '/auth': (context) => const AppAuth(),
-        '/home': (context) => const MainApp(),
-        '/postitem': (context) => const PostItem(),
-        '/userprofile': (context) => const UserProfile(),
-      },
+      home: const ScreenUtilInit(designSize: Size(375, 812), child: MainPage()),
+      routes: allRoutes,
     );
   }
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class MainPage extends StatelessWidget {
+  const MainPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const _AppWrapper();
-  }
-}
-
-class _AppWrapper extends StatefulWidget {
-  const _AppWrapper({super.key});
-
-  @override
-  State<_AppWrapper> createState() => _AppWrapperState();
-}
-
-class _AppWrapperState extends State<_AppWrapper> {
-  @override
-  Widget build(BuildContext context) {
-    bool isAuthenticated =
-        Provider.of<AuthStateProvider>(context).isAuthenticated;
-    return isAuthenticated ? const BottomNavBar() : const AppAuth();
+    return Scaffold(
+      body: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return const BottomNavBar();
+          } else {
+            return const AppAuth();
+          }
+        },
+      ),
+    );
   }
 }
