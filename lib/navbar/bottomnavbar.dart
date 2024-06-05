@@ -86,7 +86,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
         children: [
           const Home(),
           const AppSearch(),
-          const NewPost(),
+          NewPost(),
           const About(),
           Profile(),
         ],
