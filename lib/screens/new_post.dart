@@ -9,8 +9,8 @@ class NewPost extends StatefulWidget {
 
 class _NewPostState extends State<NewPost> {
   final _formKey = GlobalKey<FormState>();
-  final _captionController = TextEditingController();
-  List<String> _tagsController = [];
+  final _captionController = TextEditingController(text: 'jhhsd');
+  final List<String> _tagsController = ['nature'];
   final TextEditingController _tagInputController = TextEditingController();
 
   File? _image;
@@ -53,9 +53,11 @@ class _NewPostState extends State<NewPost> {
 
   @override
   void dispose() {
-    _captionController.dispose();
+    // _captionController.dispose();
     super.dispose();
   }
+
+  Future<dynamic> uploadImageToFirebase(File imageFile) async {}
 
   @override
   Widget build(BuildContext context) {

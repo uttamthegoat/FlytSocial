@@ -31,7 +31,7 @@ class Home extends StatelessWidget {
                 onPressed: ()async => await Provider.of<UserProvider>(context, listen: false)
                       .signOut(),
                 tooltip: 'Search',
-                child: const Icon(Icons.search),
+                child: const Icon(Icons.logout),
               ),
             ],
           ),
