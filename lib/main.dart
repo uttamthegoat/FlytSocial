@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
         '/auth': (context) => const AppAuth(),
         '/home': (context) => const MainApp(),
         '/postitem': (context) => const PostItem(),
-        '/userprofile': (context) => const UserProfile(),
+        '/userprofile': (context) =>  UserProfile(),
       },
     );
   }
