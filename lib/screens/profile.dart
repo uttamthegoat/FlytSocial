@@ -118,7 +118,6 @@ class _ProfileState extends State<Profile> {
     },
   ];
 
-  int postsCount = 12;
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +250,7 @@ class _ProfileState extends State<Profile> {
         crossAxisSpacing: 2,
         mainAxisSpacing: 2,
       ),
-      itemCount: postsCount,
+      itemCount: _allPosts.length,
       itemBuilder: (context, index) {
         final post = _allPosts[index];
         return IndividualPost(post: post);

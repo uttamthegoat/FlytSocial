@@ -1,42 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flytsocial/screens/users_profile.dart';
 
-class AppSearch extends StatelessWidget {
+class AppSearch extends StatefulWidget {
   const AppSearch({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(
-              Icons.search,
-              size: 30, // Adjust the size as needed
-            ),
-            SizedBox(width: 10), // Add some space between the icon and the text
-            Text(
-              'Search',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-            ),
-          ],
-        ),
-      ),
-      body: Container(
-        child: const SearchScreen(),
-      ),
-    );
-  }
-}
-
-class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
-
+  final int pageIndex = 2;
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends State<AppSearch> {
   final TextEditingController _searchController = TextEditingController();
 
   // Sample user data
@@ -142,37 +114,63 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: TextField(
-          controller: _searchController,
-          decoration: const InputDecoration(
-            hintText: 'Search here...',
-            border: InputBorder.none,
-            hintStyle: TextStyle(color: Colors.white, fontSize: 18),
+        appBar: AppBar(
+          // backgroundColor: Colors.black,
+          title: const Row(
+            children: [
+              Icon(
+                Icons.search,
+                size: 30, // Adjust the size as needed
+              ),
+              SizedBox(
+                  width: 10), // Add some space between the icon and the text
+              Text(
+                'Search',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+              ),
+            ],
           ),
-          style: const TextStyle(color: Colors.white, fontSize: 18.0),
-          cursorColor: Colors.white,
         ),
-      ),
-      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 1, // Number of columns in grid
-            childAspectRatio: 5 / 1, // Aspect ratio for each tile
-            crossAxisSpacing: 8.0,
-            mainAxisSpacing: 8.0,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: const InputDecoration(
+                    hintText: 'Search here...',
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 18.0),
+                  cursorColor: Colors.white,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                // Use Expanded or Flexible to allow GridView to expand
+                child: GridView.builder(
+                  // This ensures the GridView can scroll if items exceed the screen size
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    childAspectRatio: 5 / 1,
+                    crossAxisSpacing: 8.0,
+                    mainAxisSpacing: 8.0,
+                  ),
+                  itemCount: _users.length,
+                  itemBuilder: (context, index) {
+                    final user = _users[index];
+                    return UserTile(user: user);
+                  },
+                ),
+              ),
+            ],
           ),
-          itemCount: _users.length,
-          itemBuilder: (context, index) {
-            final user = _users[index];
-            return UserTile(user: user);
-          },
-        ),
-      ),
-    );
+        ));
   }
 }
 
@@ -196,11 +194,11 @@ class UserTile extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UserProfile(user: user),
-      ),
-    );
+            context,
+            MaterialPageRoute(
+              builder: (context) => UserProfile(user: user),
+            ),
+          );
         },
         child: Row(
           children: [

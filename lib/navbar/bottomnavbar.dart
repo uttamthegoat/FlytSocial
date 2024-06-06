@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flytsocial/screens/about.dart';
 import 'package:flytsocial/screens/home.dart';
@@ -18,7 +17,6 @@ int _currentIndex = 0;
 
 class _BottomNavBarState extends State<BottomNavBar> {
   late PageController pageController;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
 
   @override

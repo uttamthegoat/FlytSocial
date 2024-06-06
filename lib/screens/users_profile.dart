@@ -170,7 +170,7 @@ class _UserProfilePageState extends State<UserProfile> {
                 crossAxisSpacing: 2,
                 mainAxisSpacing: 2,
               ),
-              itemCount: postsCount,
+              itemCount: _allPosts.length,
               itemBuilder: (context, index) {
                 final post = _allPosts[index];
                 return IndividualPost(post: post);
