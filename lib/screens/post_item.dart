@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PostItem extends StatefulWidget {
-  const PostItem({Key? key}) : super(key: key);
+  final Map<String, dynamic> post;
+  const PostItem({super.key, required this.post});
 
   @override
   _PostItemState createState() => _PostItemState();
@@ -27,7 +28,8 @@ class _PostItemState extends State<PostItem> {
 
   void _incrementCommentCount() {
     setState(() {
-      _isExpanded = true;  // Show the comment section when the comment button is pressed
+      _isExpanded =
+          true; // Show the comment section when the comment button is pressed
     });
   }
 
@@ -42,6 +44,7 @@ class _PostItemState extends State<PostItem> {
 
   @override
   Widget build(BuildContext context) {
+    final post = widget.post;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Posts'),
@@ -59,9 +62,8 @@ class _PostItemState extends State<PostItem> {
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundImage: NetworkImage(
-                      'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.NKmW4Br5F_PRJzZtLUJAcQHaEK%26pid%3DApi&f=1&ipt=9197b404c87ed115200584a4945895e2efe69a66e76f21b1caaf4b79c2898ef2&ipo=images',
-                    ),
+                    backgroundImage:
+                        NetworkImage('https://via.placeholder.com/150/'),
                   ),
                   SizedBox(width: 10),
                   Text(
@@ -78,10 +80,10 @@ class _PostItemState extends State<PostItem> {
             Container(
               height: 500,
               width: double.infinity,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(
-                      'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.NKmW4Br5F_PRJzZtLUJAcQHaEK%26pid%3DApi&f=1&ipt=9197b404c87ed115200584a4945895e2efe69a66e76f21b1caaf4b79c2898ef2&ipo=images'),
+                  image: NetworkImage(post['postImageUrl'] ??
+                      'https://via.placeholder.com/150/'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -101,40 +103,38 @@ class _PostItemState extends State<PostItem> {
                   const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.comment),
-                    onPressed: _incrementCommentCount,
+                    onPressed: _toggleExpand,
                   ),
                 ],
               ),
             ),
             // Post Description
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: RichText(
-                text: const TextSpan(
-                  style: TextStyle(color: Colors.black),
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextSpan(
-                      text: 'Username ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    Text(
+                      post['caption'],
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.black),
                     ),
-                    TextSpan(
-                      text: ' #dbz #vegeta',
-                    ),
+                    Row(
+                      children: post['tags'].map<Widget>((tag) {
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                              right: 8.0), // Adjust the padding value as needed
+                          child: Text(
+                            '#$tag',
+                            style: const TextStyle(color: Colors.blue),
+                          ),
+                        );
+                      }).toList(),
+                    )
                   ],
-                ),
-              ),
-            ),
+                )),
             // Comment Section
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GestureDetector(
-                onTap: _toggleExpand,
-                child: Text(
-                  _isExpanded ? 'Hide comments' : 'View all comments',
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ),
-            ),
+
             if (_isExpanded)
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -142,24 +142,12 @@ class _PostItemState extends State<PostItem> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Display comments
-                    for (var comment in _comments)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: Text(
-                          comment,
-                          style: const TextStyle(
-                            color: Colors.black, // Darker font color
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold, // Increased font weight
-                          ),
-                        ),
-                      ),
-                    // Text Field for Adding Comments
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: TextField(
                         controller: _commentController,
                         decoration: InputDecoration(
+                          labelText: 'Comment',
                           hintText: 'Add a comment...',
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.send),
@@ -167,6 +155,39 @@ class _PostItemState extends State<PostItem> {
                           ),
                         ),
                       ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(5, 10, 0, 5),
+                          child: Text(
+                            _comments.isNotEmpty
+                                ? 'All comments'
+                                : 'No comments',
+                            style: const TextStyle(
+                              color: Colors.black, // Darker font color
+                              fontSize: 18,
+                              fontWeight:
+                                  FontWeight.bold, // Increased font weight
+                            ),
+                          ),
+                        ),
+                        for (var comment in _comments)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4.0, horizontal: 8.0),
+                            child: Text(
+                              comment,
+                              style: const TextStyle(
+                                color: Colors.black, // Darker font color
+                                fontSize: 14,
+                                fontWeight:
+                                    FontWeight.normal, // Increased font weight
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ),

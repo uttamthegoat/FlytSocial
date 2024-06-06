@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flytsocial/screens/users_profile.dart';
 import 'package:flytsocial/state/user_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,107 @@ class _ProfileState extends State<Profile> {
       // Update your profile data here
     });
   }
+
+    final List<Map<String, dynamic>> _allPosts = [
+    {
+      'id': '1',
+      'postImageUrl':
+          'https://via.placeholder.com/150/0000FF/808080?Text=Post1',
+      'caption': 'I am the goat',
+      'userId': '1',
+      'tags': ['goat', 'nature', 'man'],
+    },
+    {
+      'id': '2',
+      'postImageUrl':
+          'https://via.placeholder.com/150/FF0000/FFFFFF?Text=Post2',
+      'caption': 'Beautiful sunset',
+      'userId': '2',
+      'tags': ['sunset', 'nature', 'sky'],
+    },
+    {
+      'id': '3',
+      'postImageUrl':
+          'https://via.placeholder.com/150/FFFF00/000000?Text=Post3',
+      'caption': 'Delicious food',
+      'userId': '3',
+      'tags': ['food', 'delicious', 'meal'],
+    },
+    {
+      'id': '4',
+      'postImageUrl':
+          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
+      'caption': 'At the beach',
+      'userId': '4',
+      'tags': ['beach', 'sea', 'sand'],
+    },
+    {
+      'id': '4',
+      'postImageUrl':
+          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
+      'caption': 'At the beach',
+      'userId': '4',
+      'tags': ['beach', 'sea', 'sand'],
+    },
+    {
+      'id': '4',
+      'postImageUrl':
+          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
+      'caption': 'At the beach',
+      'userId': '4',
+      'tags': ['beach', 'sea', 'sand'],
+    },
+    {
+      'id': '4',
+      'postImageUrl':
+          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
+      'caption': 'At the beach',
+      'userId': '4',
+      'tags': ['beach', 'sea', 'sand'],
+    },
+    {
+      'id': '4',
+      'postImageUrl':
+          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
+      'caption': 'At the beach',
+      'userId': '4',
+      'tags': ['beach', 'sea', 'sand'],
+    },
+    {
+      'id': '5',
+      'postImageUrl':
+          'https://via.placeholder.com/150/800080/FFFFFF?Text=Post5',
+      'caption': 'Mountain hike',
+      'userId': '5',
+      'tags': ['hiking', 'mountains', 'adventure'],
+    },
+    {
+      'id': '6',
+      'postImageUrl':
+          'https://via.placeholder.com/150/FFA500/000000?Text=Post6',
+      'caption': 'City lights',
+      'userId': '6',
+      'tags': ['city', 'lights', 'night'],
+    },
+    {
+      'id': '7',
+      'postImageUrl':
+          'https://via.placeholder.com/150/FFC0CB/000000?Text=Post7',
+      'caption': 'Chilling with friends',
+      'userId': '7',
+      'tags': ['friends', 'chill', 'fun'],
+    },
+    {
+      'id': '8',
+      'postImageUrl':
+          'https://via.placeholder.com/150/000000/FFFFFF?Text=Post8',
+      'caption': 'Exploring the forest',
+      'userId': '8',
+      'tags': ['forest', 'exploration', 'nature'],
+    },
+  ];
+
+  int postsCount = 12;
 
   @override
   Widget build(BuildContext context) {
@@ -134,14 +236,7 @@ class _ProfileState extends State<Profile> {
               Tab(icon: Icon(Icons.grid_on, color: Colors.deepPurple)),
             ],
           ),
-          SizedBox(
-            height: 400, // Adjust the height as needed
-            child: TabBarView(
-              children: [
-                _buildGridPosts(),
-              ],
-            ),
-          ),
+          _buildGridPosts()
         ],
       ),
     );
@@ -156,16 +251,11 @@ class _ProfileState extends State<Profile> {
         crossAxisSpacing: 2,
         mainAxisSpacing: 2,
       ),
+      itemCount: postsCount,
       itemBuilder: (context, index) {
-        return Container(
-          color: Colors.grey[300],
-          child: Image.network(
-            'https://i.pinimg.com/736x/36/7e/39/367e39a52d963b9ac380c9ea3012ca25.jpg', // Replace with your image URL
-            fit: BoxFit.cover,
-          ),
-        );
+        final post = _allPosts[index];
+        return IndividualPost(post: post);
       },
-      itemCount: 30,
     );
   }
 
@@ -187,15 +277,19 @@ class _ProfileState extends State<Profile> {
         // Handle button press
         if (text == 'Sign Out') {
           // Implement sign out functionality here
-          await Provider.of<UserProvider>(context, listen: false)
-                      .signOut();
+          await Provider.of<UserProvider>(context, listen: false).signOut();
         }
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: text=="Sign Out"?Colors.red[800]:Colors.deepPurple,
-        side: BorderSide(color: text=="Sign Out"?Colors.red:Colors.deepPurple),
+        foregroundColor:
+            text == "Sign Out" ? Colors.red[800] : Colors.deepPurple,
+        side: BorderSide(
+            color: text == "Sign Out" ? Colors.red : Colors.deepPurple),
       ),
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold),),
+      child: Text(
+        text,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

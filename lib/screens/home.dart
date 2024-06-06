@@ -23,11 +23,6 @@ class Home extends StatelessWidget {
             children: [
               const Text('Home Page'),
               FloatingActionButton(
-                onPressed: () => _navToSearch(context),
-                tooltip: 'Search',
-                child: const Icon(Icons.search),
-              ),
-              FloatingActionButton(
                 onPressed: ()async => await Provider.of<UserProvider>(context, listen: false)
                       .signOut(),
                 tooltip: 'Search',

@@ -9,8 +9,8 @@ class NewPost extends StatefulWidget {
 
 class _NewPostState extends State<NewPost> {
   final _formKey = GlobalKey<FormState>();
-  final _captionController = TextEditingController(text: 'jhhsd');
-  final List<String> _tagsController = ['nature'];
+  final _captionController = TextEditingController();
+  final List<String> _tagsController = [];
   final TextEditingController _tagInputController = TextEditingController();
 
   File? _image;
