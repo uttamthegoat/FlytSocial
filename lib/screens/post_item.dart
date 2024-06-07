@@ -1,4 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flytsocial/screens/edit_post.dart';
+import 'package:flytsocial/state/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class PostItem extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -42,9 +47,57 @@ class _PostItemState extends State<PostItem> {
     }
   }
 
+  _showBottomSheet(BuildContext context, Map<String, dynamic> post) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 150,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 10, 0, 5),
+                child: ListTile(
+                  leading: const Icon(Icons.edit),
+                  title: const Text('Edit Post'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditPost(post: post),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.delete,
+                    color: Colors.red,
+                  ),
+                  title: const Text(
+                    'Delete Post',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onTap: () {
+                    // write logic to delete post
+                    // then navigate to previous page using navigator.pop()
+                  },
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final post = widget.post;
+    final curUser = Provider.of<UserProvider>(context).currentUser;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Posts'),
@@ -55,23 +108,31 @@ class _PostItemState extends State<PostItem> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // User Info Row
-            const Padding(
-              padding: EdgeInsets.all(8.0),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundImage:
-                        NetworkImage('https://via.placeholder.com/150/'),
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    'Username',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                  const Row(children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage:
+                          NetworkImage('https://via.placeholder.com/150/'),
                     ),
+                    SizedBox(width: 10),
+                    Text(
+                      'Username',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ]),
+                  // show this only if the user owns the post
+                  // curUser.userid == post.userid ==> show
+                  GestureDetector(
+                    onTap: () => _showBottomSheet(context, post),
+                    child: const Icon(Icons.more_vert_sharp),
                   ),
                 ],
               ),

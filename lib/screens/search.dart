@@ -8,8 +8,44 @@ class AppSearch extends StatefulWidget {
   _SearchScreenState createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<AppSearch> {
+class _SearchScreenState extends State<AppSearch>
+    with SingleTickerProviderStateMixin {
+  TabController? _tabController;
   final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _searchSubmit(String query) {
+    print('Search query: $query');
+
+    setState(() {
+      if (query.startsWith("#")) {
+        _tabController?.animateTo(1);
+      } else {
+        _tabController?.animateTo(0);
+      }
+      searchPosts = _allPosts;
+      searchUsers = _users;
+    });
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+  }
+
+  dynamic searchPosts = {};
+  dynamic searchUsers = {};
 
   // Sample user data
   final List<Map<String, String>> _users = [
@@ -111,19 +147,84 @@ class _SearchScreenState extends State<AppSearch> {
     },
   ];
 
+  final List<Map<String, dynamic>> _allPosts = [
+    {
+      'id': '1',
+      'postImageUrl':
+          'https://via.placeholder.com/150/0000FF/808080?Text=Post1',
+      'caption': 'I am the goat',
+      'userId': '1',
+      'tags': ['goat', 'nature', 'man'],
+    },
+    {
+      'id': '2',
+      'postImageUrl':
+          'https://via.placeholder.com/150/FF0000/FFFFFF?Text=Post2',
+      'caption': 'Beautiful sunset',
+      'userId': '2',
+      'tags': ['sunset', 'nature', 'sky'],
+    },
+    {
+      'id': '3',
+      'postImageUrl':
+          'https://via.placeholder.com/150/FFFF00/000000?Text=Post3',
+      'caption': 'Delicious food',
+      'userId': '3',
+      'tags': ['food', 'delicious', 'meal'],
+    },
+    {
+      'id': '4',
+      'postImageUrl':
+          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
+      'caption': 'At the beach',
+      'userId': '4',
+      'tags': ['beach', 'sea', 'sand'],
+    },
+    {
+      'id': '5',
+      'postImageUrl':
+          'https://via.placeholder.com/150/800080/FFFFFF?Text=Post5',
+      'caption': 'Mountain hike',
+      'userId': '5',
+      'tags': ['hiking', 'mountains', 'adventure'],
+    },
+    {
+      'id': '6',
+      'postImageUrl':
+          'https://via.placeholder.com/150/FFA500/000000?Text=Post6',
+      'caption': 'City lights',
+      'userId': '6',
+      'tags': ['city', 'lights', 'night'],
+    },
+    {
+      'id': '7',
+      'postImageUrl':
+          'https://via.placeholder.com/150/FFC0CB/000000?Text=Post7',
+      'caption': 'Chilling with friends',
+      'userId': '7',
+      'tags': ['friends', 'chill', 'fun'],
+    },
+    {
+      'id': '8',
+      'postImageUrl':
+          'https://via.placeholder.com/150/000000/FFFFFF?Text=Post8',
+      'caption': 'Exploring the forest',
+      'userId': '8',
+      'tags': ['forest', 'exploration', 'nature'],
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          // backgroundColor: Colors.black,
           title: const Row(
             children: [
               Icon(
                 Icons.search,
-                size: 30, // Adjust the size as needed
+                size: 30,
               ),
-              SizedBox(
-                  width: 10), // Add some space between the icon and the text
+              SizedBox(width: 10),
               Text(
                 'Search',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
@@ -136,41 +237,91 @@ class _SearchScreenState extends State<AppSearch> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: _searchController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Search here...',
-                    border: InputBorder.none,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 18),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    hintStyle:
+                        const TextStyle(color: Colors.white, fontSize: 18),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.clear, color: Colors.white),
+                      onPressed: _clearSearch,
+                    ),
                   ),
                   style: const TextStyle(color: Colors.white, fontSize: 18.0),
                   cursorColor: Colors.white,
+                  onSubmitted: _searchSubmit,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                // Use Expanded or Flexible to allow GridView to expand
-                child: GridView.builder(
-                  // This ensures the GridView can scroll if items exceed the screen size
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 1,
-                    childAspectRatio: 5 / 1,
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 8.0,
-                  ),
-                  itemCount: _users.length,
-                  itemBuilder: (context, index) {
-                    final user = _users[index];
-                    return UserTile(user: user);
-                  },
+              Container(
+                height: MediaQuery.of(context).size.height -
+                    kToolbarHeight -
+                    120, // Adjust this as per your layout
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _users.isEmpty ? _notFound() : _usersGrid(_users),
+                    _allPosts.isEmpty ? _notFound() : _tagsGrid(_allPosts),
+                  ],
                 ),
               ),
             ],
           ),
         ));
+  }
+
+  Widget _usersGrid(dynamic users) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 1,
+          childAspectRatio: 5 / 1,
+          crossAxisSpacing: 8.0,
+          mainAxisSpacing: 8.0,
+        ),
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          final user = users[index];
+          return UserTile(user: user);
+        },
+      ),
+    );
+  }
+
+  Widget _tagsGrid(dynamic allPosts) {
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 2,
+            mainAxisSpacing: 2,
+          ),
+          itemCount: allPosts.length,
+          itemBuilder: (context, index) {
+            final post = allPosts[index];
+            return IndividualPost(post: post);
+          },
+        ));
+  }
+
+  Widget _notFound() {
+    return const Center(
+      child: Text(
+        'Not Found!',
+        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+      ),
+    );
   }
 }
 
