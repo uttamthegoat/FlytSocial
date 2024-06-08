@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flytsocial/state/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -21,10 +23,11 @@ class Home extends StatelessWidget {
             children: [
               const Text('Home Page'),
               FloatingActionButton(
-                onPressed: () => _navToSearch(context),
+                onPressed: ()async => await Provider.of<UserProvider>(context, listen: false)
+                      .signOut(),
                 tooltip: 'Search',
-                child: const Icon(Icons.search),
-              )
+                child: const Icon(Icons.logout),
+              ),
             ],
           ),
         ),
