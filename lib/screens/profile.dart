@@ -19,104 +19,92 @@ class _ProfileState extends State<Profile> {
     });
   }
 
-    final List<Map<String, dynamic>> _allPosts = [
-    {
-      'id': '1',
-      'postImageUrl':
-          'https://via.placeholder.com/150/0000FF/808080?Text=Post1',
-      'caption': 'I am the goat',
-      'userId': '1',
-      'tags': ['goat', 'nature', 'man'],
-    },
-    {
-      'id': '2',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FF0000/FFFFFF?Text=Post2',
-      'caption': 'Beautiful sunset',
-      'userId': '2',
-      'tags': ['sunset', 'nature', 'sky'],
-    },
-    {
-      'id': '3',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFFF00/000000?Text=Post3',
-      'caption': 'Delicious food',
-      'userId': '3',
-      'tags': ['food', 'delicious', 'meal'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '4',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '4',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '4',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '4',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '4',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '5',
-      'postImageUrl':
-          'https://via.placeholder.com/150/800080/FFFFFF?Text=Post5',
-      'caption': 'Mountain hike',
-      'userId': '5',
-      'tags': ['hiking', 'mountains', 'adventure'],
-    },
-    {
-      'id': '6',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFA500/000000?Text=Post6',
-      'caption': 'City lights',
-      'userId': '6',
-      'tags': ['city', 'lights', 'night'],
-    },
-    {
-      'id': '7',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFC0CB/000000?Text=Post7',
-      'caption': 'Chilling with friends',
-      'userId': '7',
-      'tags': ['friends', 'chill', 'fun'],
-    },
-    {
-      'id': '8',
-      'postImageUrl':
-          'https://via.placeholder.com/150/000000/FFFFFF?Text=Post8',
-      'caption': 'Exploring the forest',
-      'userId': '8',
-      'tags': ['forest', 'exploration', 'nature'],
-    },
-  ];
+final List<Map<String, dynamic>> _allPosts = [
+  {
+    'id': '1',
+    'postImageUrl': 'https://via.placeholder.com/150/0000FF/808080?Text=Post1',
+    'caption': 'I am the goat',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['goat', 'nature', 'man'],
+  },
+  {
+    'id': '2',
+    'postImageUrl': 'https://via.placeholder.com/150/FF0000/FFFFFF?Text=Post2',
+    'caption': 'Beautiful sunset',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['sunset', 'nature', 'sky'],
+  },
+  {
+    'id': '3',
+    'postImageUrl': 'https://via.placeholder.com/150/FFFF00/000000?Text=Post3',
+    'caption': 'Delicious food',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['food', 'delicious', 'meal'],
+  },
+  {
+    'id': '4',
+    'postImageUrl': 'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
+    'caption': 'At the beach',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['beach', 'sea', 'sand'],
+  },
+  {
+    'id': '4',
+    'postImageUrl': 'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
+    'caption': 'At the beach',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['beach', 'sea', 'sand'],
+  },
+  {
+    'id': '4',
+    'postImageUrl': 'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
+    'caption': 'At the beach',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['beach', 'sea', 'sand'],
+  },
+  {
+    'id': '4',
+    'postImageUrl': 'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
+    'caption': 'At the beach',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['beach', 'sea', 'sand'],
+  },
+  {
+    'id': '4',
+    'postImageUrl': 'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
+    'caption': 'At the beach',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['beach', 'sea', 'sand'],
+  },
+  {
+    'id': '5',
+    'postImageUrl': 'https://via.placeholder.com/150/800080/FFFFFF?Text=Post5',
+    'caption': 'Mountain hike',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['hiking', 'mountains', 'adventure'],
+  },
+  {
+    'id': '6',
+    'postImageUrl': 'https://via.placeholder.com/150/FFA500/000000?Text=Post6',
+    'caption': 'City lights',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['city', 'lights', 'night'],
+  },
+  {
+    'id': '7',
+    'postImageUrl': 'https://via.placeholder.com/150/FFC0CB/000000?Text=Post7',
+    'caption': 'Chilling with friends',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['friends', 'chill', 'fun'],
+  },
+  {
+    'id': '8',
+    'postImageUrl': 'https://via.placeholder.com/150/000000/FFFFFF?Text=Post8',
+    'caption': 'Exploring the forest',
+    'userId': 'mxaAxdrIMedycxVm588V',
+    'tags': ['forest', 'exploration', 'nature'],
+  },
+];
 
 
   @override
@@ -133,6 +121,7 @@ class _ProfileState extends State<Profile> {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               _buildProfileHeader(curUser),
               _buildProfileDetails(curUser),
@@ -161,12 +150,15 @@ class _ProfileState extends State<Profile> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  curUser['username'],
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Colors.deepPurple,
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 23),
+                  child: Text(
+                    curUser['username'],
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.deepPurple,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -196,20 +188,40 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildProfileDetails(Map<String, dynamic> curUser) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 8),
-          Text(
-            curUser['bio'],
-            style: const TextStyle(
-              color: Colors.black87,
-            ),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Container(
+          alignment: AlignmentDirectional.centerStart,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: Text(
+                  curUser['name'],
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 17),
+                ),
+              ),
+              // const SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: Text(
+                  curUser['email'],
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: Text(
+                  curUser['bio'],
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 
   Widget _buildProfileActions() {

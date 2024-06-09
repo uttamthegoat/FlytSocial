@@ -32,11 +32,11 @@ class _SearchScreenState extends State<AppSearch>
     setState(() {
       if (query.startsWith("#")) {
         _tabController?.animateTo(1);
+        searchPosts = _allPosts;
       } else {
         _tabController?.animateTo(0);
+        searchUsers = _users;
       }
-      searchPosts = _allPosts;
-      searchUsers = _users;
     });
   }
 

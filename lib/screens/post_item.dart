@@ -98,6 +98,8 @@ class _PostItemState extends State<PostItem> {
   Widget build(BuildContext context) {
     final post = widget.post;
     final curUser = Provider.of<UserProvider>(context).currentUser;
+    print(post['userId']);
+    print(curUser['userId']);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Posts'),
@@ -130,10 +132,11 @@ class _PostItemState extends State<PostItem> {
                   ]),
                   // show this only if the user owns the post
                   // curUser.userid == post.userid ==> show
-                  GestureDetector(
-                    onTap: () => _showBottomSheet(context, post),
-                    child: const Icon(Icons.more_vert_sharp),
-                  ),
+                  if (curUser['userId'] == post['userId'])
+                      GestureDetector(
+                        onTap: () => _showBottomSheet(context, post),
+                        child: const Icon(Icons.more_vert_sharp),
+                      )
                 ],
               ),
             ),
