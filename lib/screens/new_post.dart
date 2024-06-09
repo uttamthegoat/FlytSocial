@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:provider/provider.dart';
 import 'package:path/path.dart' as Path;
+import 'package:flytsocial/state/user_provider.dart' ; // Adjust the import according to your project structure
 
 class NewPost extends StatefulWidget {
   @override
@@ -27,12 +30,11 @@ class _NewPostState extends State<NewPost> {
     }
   }
 
-   Future<String?> _uploadImage(File image) async {
-    // Use the current timestamp in milliseconds as the file name
+  Future<String?> _uploadImage(File image) async {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     try {
       TaskSnapshot snapshot = await FirebaseStorage.instance
-          .ref('posts/username/$fileName')
+          .ref('posts/${fileName}')
           .putFile(image);
       String downloadURL = await snapshot.ref.getDownloadURL();
       return downloadURL;
@@ -44,11 +46,20 @@ class _NewPostState extends State<NewPost> {
       return null;
     }
   }
-  void _submitForm() async {
+
+  void _submitForm(String userId) async {
     if (_formKey.currentState!.validate() && _image != null) {
       String? imageURL = await _uploadImage(_image!);
       if (imageURL != null) {
-        print("Image URL: $imageURL");  // Print the image URL
+        CollectionReference posts = FirebaseFirestore.instance.collection('posts');
+        await posts.add({
+          'userId': userId,
+          'imageURL': imageURL,
+          'caption': _captionController.text,
+          'tags': _tagsController,
+        });
+
+        print("Image URL: $imageURL");
         print("Caption: ${_captionController.text}");
         print("Tags: $_tagsController");
       }
@@ -78,6 +89,9 @@ class _NewPostState extends State<NewPost> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final currentUserId = userProvider.currentUserId;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Create a new post')),
       body: Padding(
@@ -195,7 +209,9 @@ class _NewPostState extends State<NewPost> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: _submitForm,
+                    onPressed: currentUserId != null
+                        ? () => _submitForm(currentUserId)
+                        : null,
                     child: const Text('Create post'),
                   ),
                   ElevatedButton(

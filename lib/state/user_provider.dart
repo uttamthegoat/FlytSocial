@@ -26,16 +26,16 @@ Future<dynamic> getUser(String key) async {
     };
     return defaultUser; // No user data found
   }
-  return userJson;
+  return jsonDecode(userJson);
 }
 
 class UserProvider with ChangeNotifier {
   User? _user;
-
   dynamic curUser;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   User? get user => _user;
+  String? get currentUserId => curUser?['userId'];
   get currentUser => curUser;
 
   UserProvider() {
@@ -60,9 +60,9 @@ class UserProvider with ChangeNotifier {
     _user = null;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('myMapKey');
+    notifyListeners();
   }
 
-// this is in use
   Future<void> signIn() async {
     try {
       GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
@@ -72,13 +72,11 @@ class UserProvider with ChangeNotifier {
       AuthCredential credential = GoogleAuthProvider.credential(
           accessToken: googleAuth?.accessToken, idToken: googleAuth?.idToken);
 
-      // _user = (await FirebaseAuth.instance.signInWithCredential(credential)) as User;
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
       _onAuthStateChanged(userCredential.user);
 
       if (_user?.emailVerified ?? false) {
-        // database code
         var newUser = <String, dynamic>{
           "userId": "",
           "name": _user?.displayName,
@@ -91,32 +89,30 @@ class UserProvider with ChangeNotifier {
         };
         if (!(await emailExists(_user?.email))) {
           final db = FirebaseFirestore.instance;
-          db
-              .collection("users")
-              .add(newUser)
-              .then((DocumentReference doc) => newUser['userId'] = doc.id);
+          DocumentReference docRef = await db.collection("users").add(newUser);
+          newUser['userId'] = docRef.id;
         } else {
           final checkEmail = _user?.email;
           final snapshot = await FirebaseFirestore.instance
               .collection('users')
               .where('email', isEqualTo: checkEmail)
               .get();
+          var userData = snapshot.docs.first.data();
           newUser['userId'] = snapshot.docs.first.id;
-          newUser['name'] = snapshot.docs.first.data()['name'];
-          newUser['email'] = snapshot.docs.first.data()['email'];
-          newUser['imageUrl'] = snapshot.docs.first.data()['imageUrl'];
-          newUser['bio'] = snapshot.docs.first.data()['bio'];
-          newUser['username'] = snapshot.docs.first.data()['username'];
+          newUser['name'] = userData['name'];
+          newUser['email'] = userData['email'];
+          newUser['imageUrl'] = userData['imageUrl'];
+          newUser['bio'] = userData['bio'];
+          newUser['username'] = userData['username'];
         }
         curUser = newUser;
+        await storeUser('curUser', newUser);
         notifyListeners();
       } else {
         print('User email is not verified.');
-        // Optionally handle the case where the email is not verified
       }
     } catch (error) {
-      print("error");
-      // toast a message saying error
+      print("error: $error");
     }
   }
 
@@ -128,7 +124,6 @@ class UserProvider with ChangeNotifier {
             "Name must contain at least one alphanumeric character or underscore.");
       }
 
-      // Function to check if username exists in Firestore
       Future<bool> usernameExists(String username) async {
         final snapshot = await FirebaseFirestore.instance
             .collection('users')
@@ -162,8 +157,7 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> setUserInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString('curuser');
-    curUser = json.decode(jsonString!);
+    curUser = await getUser('curUser');
+    notifyListeners();
   }
 }
