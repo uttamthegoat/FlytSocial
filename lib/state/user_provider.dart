@@ -109,6 +109,7 @@ class UserProvider with ChangeNotifier {
           newUser['username'] = snapshot.docs.first.data()['username'];
         }
         curUser = newUser;
+        storeUser('curuser', curUser);
         notifyListeners();
       } else {
         print('User email is not verified.');
