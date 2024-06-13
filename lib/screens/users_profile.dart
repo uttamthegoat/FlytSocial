@@ -1,28 +1,94 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flytsocial/screens/post_item.dart';
 
 class UserProfile extends StatefulWidget {
   final Map<String, String> user;
+  final String curUser;
 
-  const UserProfile({super.key, required this.user});
+  const UserProfile({super.key, required this.user, required this.curUser});
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
 }
 
 class _UserProfilePageState extends State<UserProfile> {
-  bool isFollowing = false;
-  int followersCount = 120;
-  int postsCount = 8;
+  late bool isFollowing = false;
+  late int followersCount = 0;
+  late int followingCount = 0;
+  late int postsCount = 8;
 
-  void toggleFollow() {
+  @override
+  void initState() {
+    super.initState();
+    getUserInfo();
+  }
+
+  Future<void> checkIfFollowing() async {
+    final userProfile = widget.user['userId'];
+    final curUser = widget.curUser;
+    print(userProfile);
+    print(curUser);
+    final docSnapshot = await FirebaseFirestore.instance
+        .collection('follow')
+        .where('follower', isEqualTo: curUser)
+        .where('following', isEqualTo: userProfile)
+        .get();
     setState(() {
-      if (isFollowing) {
-        followersCount--;
-      } else {
-        followersCount++;
-      }
-      isFollowing = !isFollowing;
+      isFollowing = docSnapshot.docs.isNotEmpty;
     });
+  }
+
+  Future<void> getUserInfo() async {
+    final userProfile = widget.user['userId'];
+
+    // Fetch followers count
+    final followersSnapshot = await FirebaseFirestore.instance
+        .collection('follow')
+        .where('following', isEqualTo: userProfile)
+        .get();
+
+    // Fetch following count
+    final followingSnapshot = await FirebaseFirestore.instance
+        .collection('follow')
+        .where('follower', isEqualTo: userProfile)
+        .get();
+
+    setState(() {
+      followersCount = followersSnapshot.docs.length;
+      followingCount = followingSnapshot.docs.length;
+    });
+    // check if the loggedin user follows this profile
+    await checkIfFollowing();
+  }
+
+  void toggleFollow(BuildContext context, Map<String, String> user) async {
+    final String curUser = widget.curUser;
+    final String userProfile = user['userId']!;
+
+    if (isFollowing) {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('follow')
+          .where('follower', isEqualTo: curUser)
+          .where('following', isEqualTo: userProfile)
+          .get();
+
+      for (var doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+      setState(() {
+        followersCount--;
+        isFollowing = false;
+      });
+    } else {
+      await FirebaseFirestore.instance.collection('follow').add({
+        'follower': curUser,
+        'following': userProfile,
+      });
+      setState(() {
+        followersCount++;
+        isFollowing = true;
+      });
+    }
   }
 
   final List<Map<String, dynamic>> _allPosts = [
@@ -91,7 +157,7 @@ class _UserProfilePageState extends State<UserProfile> {
       'tags': ['forest', 'exploration', 'nature'],
     },
   ];
- 
+
   @override
   Widget build(BuildContext context) {
     final user = widget.user;
@@ -121,12 +187,12 @@ class _UserProfilePageState extends State<UserProfile> {
                           children: <Widget>[
                             _buildStatColumn(postsCount, 'Posts'),
                             _buildStatColumn(followersCount, 'Followers'),
-                            _buildStatColumn(200, 'Following'),
+                            _buildStatColumn(followingCount, 'Following'),
                           ],
                         ),
                         const SizedBox(height: 8),
                         ElevatedButton(
-                          onPressed: toggleFollow,
+                          onPressed: () => toggleFollow(context, user),
                           child: Text(isFollowing ? 'Following' : 'Follow'),
                         ),
                       ],
@@ -207,11 +273,12 @@ class _UserProfilePageState extends State<UserProfile> {
 
 class IndividualPost extends StatelessWidget {
   final Map<String, dynamic> post;
-  
+
   IndividualPost({required this.post});
 
   @override
   Widget build(BuildContext context) {
+    print(post['imageUrl']);
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -224,7 +291,7 @@ class IndividualPost extends StatelessWidget {
       child: Container(
         color: Colors.grey[300],
         child: Image.network(
-          'https://via.placeholder.com/152',
+          post['postImageUrl'],
           fit: BoxFit.cover,
         ),
       ),

@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flytsocial/screens/edit_post.dart';
 import 'package:flytsocial/state/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -146,8 +144,7 @@ class _PostItemState extends State<PostItem> {
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(post['postImageUrl'] ??
-                      'https://via.placeholder.com/150/'),
+                  image: NetworkImage(post['postImageUrl']),
                   fit: BoxFit.cover,
                 ),
               ),

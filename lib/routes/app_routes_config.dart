@@ -7,7 +7,7 @@ dynamic allRoutes = {
   '/editprofile': (context) => const EditProfile(),
   '/postitem': (context) => const PostItem(post: {}),
   '/userprofile': (context) => const UserProfile(
-        user: {},
+        user: {},curUser:""
       ),
   '/editpost': (context) => const EditPost(
         post: {},

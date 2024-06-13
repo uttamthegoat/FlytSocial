@@ -36,6 +36,7 @@ class UserProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   User? get user => _user;
+  // this value is used in the application
   get currentUser => curUser;
 
   UserProvider() {
@@ -90,10 +91,14 @@ class UserProvider with ChangeNotifier {
               : _user?.email,
         };
         if (!(await emailExists(_user?.email))) {
+          var _newUser = {
+            ...newUser,
+          };
+          _newUser.remove("userId");
           final db = FirebaseFirestore.instance;
           db
               .collection("users")
-              .add(newUser)
+              .add(_newUser)
               .then((DocumentReference doc) => newUser['userId'] = doc.id);
         } else {
           final checkEmail = _user?.email;

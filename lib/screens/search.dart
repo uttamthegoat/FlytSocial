@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flytsocial/screens/users_profile.dart';
+import 'package:flytsocial/state/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class AppSearch extends StatefulWidget {
   const AppSearch({super.key});
@@ -13,7 +16,7 @@ class _SearchScreenState extends State<AppSearch>
   TabController? _tabController;
   final TextEditingController _searchController = TextEditingController();
   late List<Map<String, dynamic>> postResults = [];
-  late List<Map<String, String>> userResults = [];
+  late List<Map<String, dynamic>> userResults = [];
 
   @override
   void initState() {
@@ -28,192 +31,94 @@ class _SearchScreenState extends State<AppSearch>
     super.dispose();
   }
 
-  void _searchSubmit(String query) {
+  void _searchSubmit(BuildContext context, String query) {
     print('Search query: $query');
 
-    setState(() {
-      if (query.startsWith("#")) {
-        _tabController?.animateTo(1);
-        postResults = _allPosts;
+    if (query.startsWith("#")) {
+      _tabController?.animateTo(1);
+      String tagQuery = query.substring(1);
+      searchPosts(tagQuery);
+    } else {
+      _tabController?.animateTo(0);
+      searchUsers(context, query);
+    }
+  }
+
+  void searchPosts(String tagQuery) {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .where('tags', arrayContains: tagQuery)
+        .get()
+        .then((querySnapshot) {
+      var posts = querySnapshot.docs.map((doc) => doc.data()).toList();
+      setState(() {
+        postResults = posts;
         userResults = [];
-      } else {
-        _tabController?.animateTo(0);
-        userResults = _users;
-        postResults = [];
-      }
+      });
+    }).catchError((e) {
+      print('Error fetching posts by tag: $e');
     });
+  }
+
+  void searchUsers(BuildContext context, String query) async {
+    try {
+      // Create a reference to the Firestore users collection
+      final usersCollection = FirebaseFirestore.instance.collection('users');
+
+      // Perform queries for both username and name, case-insensitive substring match
+      final usernameQuery = await usersCollection
+          .where('username', isGreaterThanOrEqualTo: query)
+          .where('username', isLessThanOrEqualTo: '$query\uf8ff')
+          .get();
+      final nameQuery = await usersCollection
+          .where('name', isGreaterThanOrEqualTo: query)
+          .where('name', isLessThanOrEqualTo: '$query\uf8ff')
+          .get();
+
+      // Combine the results from both queries
+      List<Map<String, dynamic>> results = [];
+      // doesnt display the logged in users account
+      final String curUserEmail =
+          Provider.of<UserProvider>(context, listen: false)
+              .currentUser['email'];
+      Set<String> seenEmails = {curUserEmail};
+
+      // Process username query results
+      for (var doc in usernameQuery.docs) {
+        final String userId = doc.id;
+        var userData = doc.data();
+        userData['userId'] = userId;
+        String? userEmail = userData['email'];
+        if (userEmail != null && !seenEmails.contains(userEmail)) {
+          results.add(userData);
+          seenEmails.add(userEmail);
+        }
+      }
+
+      // Process name query results
+      for (var doc in nameQuery.docs) {
+        final String userId = doc.id;
+        var userData = doc.data();
+        userData['userId'] = userId;
+        String? userEmail = userData['email'];
+        if (userEmail != null && !seenEmails.contains(userEmail)) {
+          results.add(userData);
+          seenEmails.add(userEmail);
+        }
+      }
+
+      setState(() {
+        userResults = results;
+        postResults = [];
+      });
+    } catch (e) {
+      print('Error searching users: $e');
+    }
   }
 
   void _clearSearch() {
     _searchController.clear();
   }
-
-  // Sample user data
-  final List<Map<String, String>> _users = [
-    {
-      'id': '1',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username1',
-      'name': 'Name 1',
-      'email': 'user1@mail.com',
-      'bio': 'I am user 1'
-    },
-    {
-      'id': '2',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username2',
-      'name': 'Name 2',
-      'email': 'user2@mail.com',
-      'bio': 'I am user 2'
-    },
-    {
-      'id': '3',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username3',
-      'name': 'Name 3',
-      'email': 'user3@mail.com',
-      'bio': 'I am user 3'
-    },
-    {
-      'id': '4',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username4',
-      'name': 'Name 4',
-      'email': 'user4@mail.com',
-      'bio': 'I am user 4'
-    },
-    {
-      'id': '5',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username5',
-      'name': 'Name 5',
-      'email': 'user5@mail.com',
-      'bio': 'I am user 5'
-    },
-    {
-      'id': '6',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username6',
-      'name': 'Name 6',
-      'email': 'user6@mail.com',
-      'bio': 'I am user 6'
-    },
-    {
-      'id': '7',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username7',
-      'name': 'Name 7',
-      'email': 'user7@mail.com',
-      'bio': 'I am user 7'
-    },
-    {
-      'id': '8',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username8',
-      'name': 'Name 8',
-      'email': 'user8@mail.com',
-      'bio': 'I am user 8'
-    },
-    {
-      'id': '9',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username9',
-      'name': 'Name 9',
-      'email': 'user9@mail.com',
-      'bio': 'I am user 9'
-    },
-    {
-      'id': '10',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username10',
-      'name': 'Name 10',
-      'email': 'user10@mail.com',
-      'bio': 'I am user 10'
-    },
-    {
-      'id': '11',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username11',
-      'name': 'Name 11',
-      'email': 'user11@mail.com',
-      'bio': 'I am user 11'
-    },
-    {
-      'id': '12',
-      'imageUrl': 'https://via.placeholder.com/150',
-      'username': 'username12',
-      'name': 'Name 12',
-      'email': 'user12@mail.com',
-      'bio': 'I am user 12'
-    },
-  ];
-
-  final List<Map<String, dynamic>> _allPosts = [
-    {
-      'id': '1',
-      'postImageUrl':
-          'https://via.placeholder.com/150/0000FF/808080?Text=Post1',
-      'caption': 'I am the goat',
-      'userId': '1',
-      'tags': ['goat', 'nature', 'man'],
-    },
-    {
-      'id': '2',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FF0000/FFFFFF?Text=Post2',
-      'caption': 'Beautiful sunset',
-      'userId': '2',
-      'tags': ['sunset', 'nature', 'sky'],
-    },
-    {
-      'id': '3',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFFF00/000000?Text=Post3',
-      'caption': 'Delicious food',
-      'userId': '3',
-      'tags': ['food', 'delicious', 'meal'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '4',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '5',
-      'postImageUrl':
-          'https://via.placeholder.com/150/800080/FFFFFF?Text=Post5',
-      'caption': 'Mountain hike',
-      'userId': '5',
-      'tags': ['hiking', 'mountains', 'adventure'],
-    },
-    {
-      'id': '6',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFA500/000000?Text=Post6',
-      'caption': 'City lights',
-      'userId': '6',
-      'tags': ['city', 'lights', 'night'],
-    },
-    {
-      'id': '7',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFC0CB/000000?Text=Post7',
-      'caption': 'Chilling with friends',
-      'userId': '7',
-      'tags': ['friends', 'chill', 'fun'],
-    },
-    {
-      'id': '8',
-      'postImageUrl':
-          'https://via.placeholder.com/150/000000/FFFFFF?Text=Post8',
-      'caption': 'Exploring the forest',
-      'userId': '8',
-      'tags': ['forest', 'exploration', 'nature'],
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +161,7 @@ class _SearchScreenState extends State<AppSearch>
                   ),
                   style: const TextStyle(color: Colors.white, fontSize: 18.0),
                   cursorColor: Colors.white,
-                  onSubmitted: _searchSubmit,
+                  onSubmitted: (String value) => _searchSubmit(context, value),
                 ),
               ),
               Container(
@@ -271,7 +176,7 @@ class _SearchScreenState extends State<AppSearch>
                               ? _notFound('No users found!')
                               : _usersGrid(userResults),
                           postResults.isEmpty
-                              ? _notFound('No users found!')
+                              ? _notFound('No posts found!')
                               : _tagsGrid(postResults),
                         ],
                       )
@@ -293,7 +198,7 @@ class _SearchScreenState extends State<AppSearch>
         ));
   }
 
-  Widget _usersGrid(final List<Map<String, String>> users) {
+  Widget _usersGrid(final List<Map<String, dynamic>> users) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GridView.builder(
@@ -306,7 +211,8 @@ class _SearchScreenState extends State<AppSearch>
         ),
         itemCount: users.length,
         itemBuilder: (context, index) {
-          final user = users[index];
+          final user =
+              users[index].map((key, value) => MapEntry(key, value.toString()));
           return UserTile(user: user);
         },
       ),
@@ -335,7 +241,8 @@ class _SearchScreenState extends State<AppSearch>
     return Center(
       child: Text(
         notFoundText,
-        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
+        style: const TextStyle(
+            fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
       ),
     );
   }
@@ -363,7 +270,12 @@ class UserTile extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => UserProfile(user: user),
+              builder: (context) {
+                final curUser =
+                    Provider.of<UserProvider>(context, listen: false)
+                        .currentUser;
+                return UserProfile(user: user, curUser: curUser['userId']);
+              },
             ),
           );
         },
