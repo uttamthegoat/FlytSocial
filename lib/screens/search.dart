@@ -12,6 +12,8 @@ class _SearchScreenState extends State<AppSearch>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
   final TextEditingController _searchController = TextEditingController();
+  late List<Map<String, dynamic>> postResults = [];
+  late List<Map<String, String>> userResults = [];
 
   @override
   void initState() {
@@ -32,10 +34,12 @@ class _SearchScreenState extends State<AppSearch>
     setState(() {
       if (query.startsWith("#")) {
         _tabController?.animateTo(1);
-        searchPosts = _allPosts;
+        postResults = _allPosts;
+        userResults = [];
       } else {
         _tabController?.animateTo(0);
-        searchUsers = _users;
+        userResults = _users;
+        postResults = [];
       }
     });
   }
@@ -43,9 +47,6 @@ class _SearchScreenState extends State<AppSearch>
   void _clearSearch() {
     _searchController.clear();
   }
-
-  dynamic searchPosts = {};
-  dynamic searchUsers = {};
 
   // Sample user data
   final List<Map<String, String>> _users = [
@@ -244,12 +245,12 @@ class _SearchScreenState extends State<AppSearch>
                     hintText: 'Search here...',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: Colors.white),
+                      borderSide: const BorderSide(color: Colors.white),
                     ),
                     hintStyle:
                         const TextStyle(color: Colors.white, fontSize: 18),
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.clear, color: Colors.white),
+                      icon: const Icon(Icons.clear, color: Colors.white),
                       onPressed: _clearSearch,
                     ),
                   ),
@@ -262,25 +263,41 @@ class _SearchScreenState extends State<AppSearch>
                 height: MediaQuery.of(context).size.height -
                     kToolbarHeight -
                     120, // Adjust this as per your layout
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _users.isEmpty ? _notFound() : _usersGrid(_users),
-                    _allPosts.isEmpty ? _notFound() : _tagsGrid(_allPosts),
-                  ],
-                ),
+                child: _searchController.text != ""
+                    ? TabBarView(
+                        controller: _tabController,
+                        children: [
+                          userResults.isEmpty
+                              ? _notFound('No users found!')
+                              : _usersGrid(userResults),
+                          postResults.isEmpty
+                              ? _notFound('No users found!')
+                              : _tagsGrid(postResults),
+                        ],
+                      )
+                    : Container(
+                        child: const Center(
+                          child: Text(
+                            'Search...',
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
               ),
             ],
           ),
         ));
   }
 
-  Widget _usersGrid(dynamic users) {
+  Widget _usersGrid(final List<Map<String, String>> users) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GridView.builder(
         shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 1,
           childAspectRatio: 5 / 1,
@@ -301,7 +318,6 @@ class _SearchScreenState extends State<AppSearch>
         padding: const EdgeInsets.all(8.0),
         child: GridView.builder(
           shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             crossAxisSpacing: 2,
@@ -315,11 +331,11 @@ class _SearchScreenState extends State<AppSearch>
         ));
   }
 
-  Widget _notFound() {
-    return const Center(
+  Widget _notFound(String notFoundText) {
+    return Center(
       child: Text(
-        'Not Found!',
-        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        notFoundText,
+        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
       ),
     );
   }

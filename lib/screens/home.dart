@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flytsocial/state/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatelessWidget {
   final List<Post> posts = [
@@ -46,6 +48,7 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(Provider.of<UserProvider>(context).currentUser);
     return Scaffold(
       appBar: AppBar(
         title: Text('Instagram'),
@@ -265,3 +268,4 @@ class _CommentSectionState extends State<CommentSection> {
     );
   }
 }
+
