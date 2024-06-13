@@ -1,6 +1,8 @@
 import 'package:flytsocial/screens/edit_post.dart';
 import 'package:flytsocial/screens/edit_profile.dart';
+import 'package:flytsocial/screens/home.dart';
 import 'package:flytsocial/screens/post_item.dart';
+import 'package:flytsocial/screens/profile.dart';
 import 'package:flytsocial/screens/users_profile.dart';
 
 dynamic allRoutes = {
@@ -11,5 +13,11 @@ dynamic allRoutes = {
       ),
   '/editpost': (context) => const EditPost(
         post: {},
+      ),
+  '/profile': (context) => const Profile(
+        user: {},
+      ),
+  '/home': (context) => const Home(
+        user: {},
       ),
 };

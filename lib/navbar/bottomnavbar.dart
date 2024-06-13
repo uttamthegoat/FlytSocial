@@ -5,6 +5,8 @@ import 'package:flytsocial/screens/new_post.dart';
 import 'package:flytsocial/screens/profile.dart';
 import 'package:flytsocial/screens/search.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flytsocial/state/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -17,7 +19,6 @@ int _currentIndex = 0;
 
 class _BottomNavBarState extends State<BottomNavBar> {
   late PageController pageController;
-
 
   @override
   void initState() {
@@ -43,50 +44,51 @@ class _BottomNavBarState extends State<BottomNavBar> {
     pageController.jumpToPage(page);
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final curUser = Provider.of<UserProvider>(context).currentUser;
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.black,
       bottomNavigationBar: Container(
-      child: CurvedNavigationBar(
-              index: _currentIndex,
-              backgroundColor: Colors.transparent,
-              items: const [
-                Icon(
-                  Icons.home,
-                  size: 30,
-                ),
-                Icon(
-                  Icons.search,
-                  size: 30,
-                ),
-                Icon(
-                  Icons.add,
-                  size: 30,
-                ),
-                Icon(
-                  Icons.info_outline,
-                  size: 30,
-                ),
-                Icon(
-                  Icons.person,
-                  size: 30,
-                ),
-              ],
-              onTap: navigationTapped,
-            )
-      ),      // body: Screens[_selectedIndex],
+          child: CurvedNavigationBar(
+        index: _currentIndex,
+        backgroundColor: Color.fromARGB(179, 128, 127, 127),
+        items: const [
+          Icon(
+            Icons.home,
+            size: 30,
+          ),
+          Icon(
+            Icons.search,
+            size: 30,
+          ),
+          Icon(
+            Icons.add,
+            size: 30,
+          ),
+          Icon(
+            Icons.info_outline,
+            size: 30,
+          ),
+          Icon(
+            Icons.person,
+            size: 30,
+          ),
+        ],
+        onTap: navigationTapped,
+      )), // body: Screens[_selectedIndex],
       body: PageView(
         controller: pageController,
         onPageChanged: onPageChanged,
         children: [
-          const Home(),
+          Home(user: curUser),
           const AppSearch(),
           NewPost(),
           const About(),
-          Profile(),
+          Profile(
+            user: curUser,
+          ),
         ],
       ),
     );

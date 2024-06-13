@@ -3,7 +3,8 @@ import 'package:flytsocial/state/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  final dynamic user;
+  const Home({super.key, required this.user});
 
   @override
   State<Home> createState() => _HomeState();
@@ -12,7 +13,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    print(Provider.of<UserProvider>(context).currentUser);
+    final user = widget.user;
+    print(user);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),

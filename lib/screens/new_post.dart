@@ -58,6 +58,9 @@ class _NewPostState extends State<NewPost> {
           'tags': _tagsController,
         });
       }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Post has been created.')),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please complete the form')),
