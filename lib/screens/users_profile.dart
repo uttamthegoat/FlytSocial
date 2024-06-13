@@ -230,4 +230,26 @@ class IndividualPost extends StatelessWidget {
       ),
     );
   }
+
+  Column _buildStatColumn(int count, String label) {
+    return Column(
+      children: <Widget>[
+        Text(
+          count.toString(),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
+          ),
+        ),
+      ],
+    );
+  }
 }
