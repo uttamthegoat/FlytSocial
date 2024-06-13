@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:provider/provider.dart';
+import 'package:flytsocial/state/user_provider.dart'; // Adjust the import according to your project structure
 
 class NewPost extends StatefulWidget {
   @override
@@ -14,7 +18,6 @@ class _NewPostState extends State<NewPost> {
   final TextEditingController _tagInputController = TextEditingController();
 
   File? _image;
-
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage(ImageSource source) async {
@@ -26,15 +29,36 @@ class _NewPostState extends State<NewPost> {
     }
   }
 
-  void _submitForm() {
+  Future<String?> _uploadImage(File image, String username) async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    try {
+      TaskSnapshot snapshot = await FirebaseStorage.instance
+          .ref('posts/$username/$fileName')
+          .putFile(image);
+      String downloadURL = await snapshot.ref.getDownloadURL();
+      return downloadURL;
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to upload image')),
+      );
+      return null;
+    }
+  }
+
+  void _submitForm(String userId, String username) async {
     if (_formKey.currentState!.validate() && _image != null) {
-      // Form is valid and image is selected, process the data.
-      print("Caption: ${_captionController.text}");
-      print("Tags: $_tagsController");
-      print("Image Path: ${_image!.path}");
-      // You can now send the data to your backend or further process it.
+      String? postImageUrl = await _uploadImage(_image!, username);
+      if (postImageUrl != null) {
+        CollectionReference posts = FirebaseFirestore.instance.collection('posts');
+        await posts.add({
+          'userId': userId,
+          'postImageUrl': postImageUrl,
+          'caption': _captionController.text,
+          'tags': _tagsController,
+        });
+      }
     } else {
-      // Show an error message if the form is not valid or no image is selected.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please complete the form')),
       );
@@ -53,14 +77,16 @@ class _NewPostState extends State<NewPost> {
 
   @override
   void dispose() {
-    // _captionController.dispose();
+    _captionController.dispose();
+    _tagInputController.dispose();
     super.dispose();
   }
 
-  Future<dynamic> uploadImageToFirebase(File imageFile) async {}
-
   @override
   Widget build(BuildContext context) {
+    final postOwner = Provider.of<UserProvider>(context).currentUser;
+    final String curUsername = postOwner['username'];
+    final String curUserId = postOwner['userId'];
     return Scaffold(
       appBar: AppBar(title: const Text('Create a new post')),
       body: Padding(
@@ -178,7 +204,7 @@ class _NewPostState extends State<NewPost> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: _submitForm,
+                    onPressed:  () => _submitForm(curUserId, curUsername),
                     child: const Text('Create post'),
                   ),
                   ElevatedButton(
@@ -195,10 +221,3 @@ class _NewPostState extends State<NewPost> {
     );
   }
 }
-
-
-
-// inputs
-// image
-// caption
-// tags
