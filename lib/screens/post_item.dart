@@ -16,6 +16,17 @@ class _PostItemState extends State<PostItem> {
   bool _isLiked = false;
   final TextEditingController _commentController = TextEditingController();
   final List<String> _comments = [];
+  late Map<String, dynamic> postItem = {};
+
+  @override
+  void initState() {
+    super.initState();
+    setPostInfo();
+  }
+
+  void setPostInfo() {
+    postItem = widget.post;
+  }
 
   void _toggleExpand() {
     setState(() {
@@ -58,13 +69,19 @@ class _PostItemState extends State<PostItem> {
                 child: ListTile(
                   leading: const Icon(Icons.edit),
                   title: const Text('Edit Post'),
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    Navigator.pop(context);
+                    var result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => EditPost(post: post),
                       ),
                     );
+                    if (result != null && result is Map<String, dynamic>) {
+                      setState(() {
+                        postItem = result;
+                      });
+                    }
                   },
                 ),
               ),
@@ -94,9 +111,8 @@ class _PostItemState extends State<PostItem> {
 
   @override
   Widget build(BuildContext context) {
-    final post = widget.post;
     final curUser = Provider.of<UserProvider>(context).currentUser;
-    print(post['userId']);
+    print(postItem['userId']);
     print(curUser['userId']);
     return Scaffold(
       appBar: AppBar(
@@ -130,11 +146,11 @@ class _PostItemState extends State<PostItem> {
                   ]),
                   // show this only if the user owns the post
                   // curUser.userid == post.userid ==> show
-                  if (curUser['userId'] == post['userId'])
-                      GestureDetector(
-                        onTap: () => _showBottomSheet(context, post),
-                        child: const Icon(Icons.more_vert_sharp),
-                      )
+                  if (curUser['userId'] == postItem['userId'])
+                    GestureDetector(
+                      onTap: () => _showBottomSheet(context, postItem),
+                      child: const Icon(Icons.more_vert_sharp),
+                    )
                 ],
               ),
             ),
@@ -144,7 +160,7 @@ class _PostItemState extends State<PostItem> {
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(post['postImageUrl']),
+                  image: NetworkImage(postItem['postImageUrl']),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -176,12 +192,12 @@ class _PostItemState extends State<PostItem> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      post['caption'],
+                      postItem['caption'],
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                     Row(
-                      children: post['tags'].map<Widget>((tag) {
+                      children: postItem['tags'].map<Widget>((tag) {
                         return Padding(
                           padding: const EdgeInsets.only(
                               right: 8.0), // Adjust the padding value as needed

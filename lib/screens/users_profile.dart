@@ -61,7 +61,11 @@ class _UserProfilePageState extends State<UserProfile> {
         .get();
 
     // Map the documents to a list of maps
-    var posts = querySnapshot.docs.map((doc) => doc.data()).toList();
+    var posts = querySnapshot.docs.map((doc) {
+      var data = doc.data();
+      data['postId'] = doc.id;
+      return data;
+    }).toList();
 
     setState(() {
       followersCount = followersSnapshot.docs.length;
@@ -101,7 +105,6 @@ class _UserProfilePageState extends State<UserProfile> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

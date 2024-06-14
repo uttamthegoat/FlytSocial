@@ -50,7 +50,11 @@ class _SearchScreenState extends State<AppSearch>
         .where('tags', arrayContains: tagQuery)
         .get()
         .then((querySnapshot) {
-      var posts = querySnapshot.docs.map((doc) => doc.data()).toList();
+      var posts = querySnapshot.docs.map((doc) {
+        var data = doc.data();
+        data['postId'] = doc.id;
+        return data;
+      }).toList();
       setState(() {
         postResults = posts;
         userResults = [];
@@ -81,7 +85,7 @@ class _SearchScreenState extends State<AppSearch>
       final String curUserEmail =
           Provider.of<UserProvider>(context, listen: false)
               .currentUser['email'];
-      Set<String> seenEmails = {};
+      Set<String> seenEmails = {curUserEmail};
 
       // Process username query results
       for (var doc in usernameQuery.docs) {
@@ -125,9 +129,9 @@ class _SearchScreenState extends State<AppSearch>
     return Scaffold(
         appBar: AppBar(
           title: const Text(
-                'Search',
-                // style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-              ),
+            'Search',
+            // style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+          ),
         ),
         backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         body: SingleChildScrollView(

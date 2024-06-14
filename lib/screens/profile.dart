@@ -31,7 +31,11 @@ class _ProfileState extends State<Profile> {
           .get();
 
       // Map the documents to a list of maps
-      var posts = querySnapshot.docs.map((doc) => doc.data()).toList();
+      var posts = querySnapshot.docs.map((doc) {
+        var data = doc.data();
+        data['postId'] = doc.id;
+        return data;
+      }).toList();
 
       // Update the state with the fetched posts
       setState(() {

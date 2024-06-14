@@ -1,6 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flytsocial/state/user_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
+import 'package:provider/provider.dart';
 
 class EditPost extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -12,12 +17,30 @@ class EditPost extends StatefulWidget {
 class _EditPostState extends State<EditPost> {
   final _formKey = GlobalKey<FormState>();
   var _captionController = TextEditingController();
-  List<String> _tagsController = [];
+  var _imageController = TextEditingController();
+  List<dynamic> _tagsController = [];
+  late Map<String, dynamic> postItem = {};
   final TextEditingController _tagInputController = TextEditingController();
 
   File? _image;
 
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    getPostInfo();
+  }
+
+  Future<void> getPostInfo() async {
+    setState(() {
+      _captionController = TextEditingController(text: widget.post['caption']);
+      _tagsController = List.from(widget.post['tags']);
+      _imageController =
+          TextEditingController(text: widget.post['postImageUrl']);
+      postItem = widget.post;
+    });
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
@@ -28,20 +51,95 @@ class _EditPostState extends State<EditPost> {
     }
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate() && _image != null) {
-      // Form is valid and image is selected, process the data.
-      print("Caption: ${_captionController.text}");
-      print("Tags: $_tagsController");
-      print("Image Path: ${_image!.path}");
-      // You can now send the data to your backend or further process it.
+  Future<String?> replaceImage(
+      File image, String postImageUrl, String userId) async {
+    try {
+      // deleting the postImageUrl
+      final existingImageRef =
+          FirebaseStorage.instance.refFromURL(postImageUrl);
+      await existingImageRef.delete();
+      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      TaskSnapshot snapshot = await FirebaseStorage.instance
+          .ref('posts/$userId/$fileName')
+          .putFile(image);
+      String downloadURL = await snapshot.ref.getDownloadURL();
+      return downloadURL;
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to upload image')),
+      );
+      return null;
+    }
+  }
+
+  // Utility function to compare two lists
+  bool _listsEqual(List<dynamic> a, List<dynamic> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  void _submitForm(String userId) async {
+    if (_formKey.currentState!.validate()) {
+      bool shouldUpdate = false;
+      String? newImageUrl;
+      // Check if a new image is selected and upload it
+      if (_image != null) {
+        newImageUrl =
+            await replaceImage(_image!, _imageController.text, userId);
+        shouldUpdate = true;
+      }
+      // Check if caption or tags have changed
+      if (_captionController.text != postItem['caption'] ||
+          !_listsEqual(_tagsController, postItem['tags'])) {
+        shouldUpdate = true;
+      }
+      if (shouldUpdate) {
+        try {
+          // Prepare the data to be updated
+          Map<String, dynamic> updatedData = {};
+
+          if (newImageUrl != null) {
+            updatedData['postImageUrl'] = newImageUrl;
+          }
+          if (_captionController.text != postItem['caption']) {
+            updatedData['caption'] = _captionController.text;
+          }
+          if (_tagsController != postItem['tags']) {
+            updatedData['tags'] = _tagsController;
+          }
+          // Update the post document in Firestore
+          final postRef = FirebaseFirestore.instance
+              .collection('posts')
+              .doc(postItem['postId']);
+
+          await postRef.update(updatedData);
+
+          // Retrieve and print the updated document
+          final updatedDoc = await postRef.get();
+          print('Updated document: ${updatedDoc.data()}');
+
+          Navigator.pop(context, updatedDoc.data());
+
+          // display the success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('The post has been updated')),
+          );
+          // Clear the form
+          _clearForm();
+        } catch (e) {
+          print('Error updating post: $e');
+        }
+      }
+      _clearForm();
     } else {
-      // Show an error message if the form is not valid or no image is selected.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please complete the form')),
       );
     }
-    _clearForm();
   }
 
   void _clearForm() {
@@ -63,10 +161,8 @@ class _EditPostState extends State<EditPost> {
 
   @override
   Widget build(BuildContext context) {
-    final post = widget.post;
-    _captionController = TextEditingController(text: post['caption']);
-    _tagsController = post['tags'];
-    print(post);
+    final postOwner = Provider.of<UserProvider>(context).currentUser;
+    final String curUserId = postOwner['userId'];
     return Scaffold(
       appBar: AppBar(title: const Text('Edit post')),
       body: Padding(
@@ -77,7 +173,7 @@ class _EditPostState extends State<EditPost> {
             children: [
               _image == null
                   ? Image.network(
-                      post['postImageUrl']!,
+                      _imageController.text,
                       width: double.infinity,
                       fit: BoxFit.cover,
                     )
@@ -178,7 +274,7 @@ class _EditPostState extends State<EditPost> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: _submitForm,
+                    onPressed: () => _submitForm(curUserId),
                     child: const Text('Create post'),
                   ),
                   ElevatedButton(

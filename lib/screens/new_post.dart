@@ -29,11 +29,11 @@ class _NewPostState extends State<NewPost> {
     }
   }
 
-  Future<String?> _uploadImage(File image, String username) async {
+  Future<String?> _uploadImage(File image, String userId) async {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     try {
       TaskSnapshot snapshot = await FirebaseStorage.instance
-          .ref('posts/$username/$fileName')
+          .ref('posts/$userId/$fileName')
           .putFile(image);
       String downloadURL = await snapshot.ref.getDownloadURL();
       return downloadURL;
@@ -46,9 +46,9 @@ class _NewPostState extends State<NewPost> {
     }
   }
 
-  void _submitForm(String userId, String username) async {
+  void _submitForm(String userId) async {
     if (_formKey.currentState!.validate() && _image != null) {
-      String? postImageUrl = await _uploadImage(_image!, username);
+      String? postImageUrl = await _uploadImage(_image!, userId);
       if (postImageUrl != null) {
         CollectionReference posts = FirebaseFirestore.instance.collection('posts');
         await posts.add({
@@ -88,11 +88,10 @@ class _NewPostState extends State<NewPost> {
   @override
   Widget build(BuildContext context) {
     final postOwner = Provider.of<UserProvider>(context).currentUser;
-    final String curUsername = postOwner['username'];
     final String curUserId = postOwner['userId'];
     return Scaffold(
       appBar: AppBar(title: const Text('Create a new post')),
-      body: Padding(
+      body:  Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -207,7 +206,7 @@ class _NewPostState extends State<NewPost> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed:  () => _submitForm(curUserId, curUsername),
+                    onPressed:  () => _submitForm(curUserId),
                     child: const Text('Create post'),
                   ),
                   ElevatedButton(
