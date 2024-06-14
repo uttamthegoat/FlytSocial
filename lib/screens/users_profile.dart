@@ -16,6 +16,7 @@ class _UserProfilePageState extends State<UserProfile> {
   late int followersCount = 0;
   late int followingCount = 0;
   late int postsCount = 8;
+  late List<Map<String, dynamic>> postResults = [];
 
   @override
   void initState() {
@@ -53,9 +54,19 @@ class _UserProfilePageState extends State<UserProfile> {
         .where('follower', isEqualTo: userProfile)
         .get();
 
+    // Query to find posts where the userId matches curUserId
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('posts')
+        .where('userId', isEqualTo: userProfile)
+        .get();
+
+    // Map the documents to a list of maps
+    var posts = querySnapshot.docs.map((doc) => doc.data()).toList();
+
     setState(() {
       followersCount = followersSnapshot.docs.length;
       followingCount = followingSnapshot.docs.length;
+      postResults = posts;
     });
     // check if the loggedin user follows this profile
     await checkIfFollowing();
@@ -91,72 +102,6 @@ class _UserProfilePageState extends State<UserProfile> {
     }
   }
 
-  final List<Map<String, dynamic>> _allPosts = [
-    {
-      'id': '1',
-      'postImageUrl':
-          'https://via.placeholder.com/150/0000FF/808080?Text=Post1',
-      'caption': 'I am the goat',
-      'userId': '1',
-      'tags': ['goat', 'nature', 'man'],
-    },
-    {
-      'id': '2',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FF0000/FFFFFF?Text=Post2',
-      'caption': 'Beautiful sunset',
-      'userId': '2',
-      'tags': ['sunset', 'nature', 'sky'],
-    },
-    {
-      'id': '3',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFFF00/000000?Text=Post3',
-      'caption': 'Delicious food',
-      'userId': '3',
-      'tags': ['food', 'delicious', 'meal'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '4',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '5',
-      'postImageUrl':
-          'https://via.placeholder.com/150/800080/FFFFFF?Text=Post5',
-      'caption': 'Mountain hike',
-      'userId': '5',
-      'tags': ['hiking', 'mountains', 'adventure'],
-    },
-    {
-      'id': '6',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFA500/000000?Text=Post6',
-      'caption': 'City lights',
-      'userId': '6',
-      'tags': ['city', 'lights', 'night'],
-    },
-    {
-      'id': '7',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFC0CB/000000?Text=Post7',
-      'caption': 'Chilling with friends',
-      'userId': '7',
-      'tags': ['friends', 'chill', 'fun'],
-    },
-    {
-      'id': '8',
-      'postImageUrl':
-          'https://via.placeholder.com/150/000000/FFFFFF?Text=Post8',
-      'caption': 'Exploring the forest',
-      'userId': '8',
-      'tags': ['forest', 'exploration', 'nature'],
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -236,9 +181,9 @@ class _UserProfilePageState extends State<UserProfile> {
                 crossAxisSpacing: 2,
                 mainAxisSpacing: 2,
               ),
-              itemCount: _allPosts.length,
+              itemCount: postResults.length,
               itemBuilder: (context, index) {
-                final post = _allPosts[index];
+                final post = postResults[index];
                 return IndividualPost(post: post);
               },
             ),

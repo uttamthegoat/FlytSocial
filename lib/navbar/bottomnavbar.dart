@@ -53,7 +53,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
       bottomNavigationBar: Container(
           child: CurvedNavigationBar(
         index: _currentIndex,
-        backgroundColor: Color.fromARGB(179, 128, 127, 127),
+        backgroundColor: Colors.transparent,
         items: const [
           Icon(
             Icons.home,

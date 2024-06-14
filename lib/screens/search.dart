@@ -81,7 +81,7 @@ class _SearchScreenState extends State<AppSearch>
       final String curUserEmail =
           Provider.of<UserProvider>(context, listen: false)
               .currentUser['email'];
-      Set<String> seenEmails = {curUserEmail};
+      Set<String> seenEmails = {};
 
       // Process username query results
       for (var doc in usernameQuery.docs) {
@@ -124,19 +124,10 @@ class _SearchScreenState extends State<AppSearch>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Row(
-            children: [
-              Icon(
-                Icons.search,
-                size: 30,
-              ),
-              SizedBox(width: 10),
-              Text(
+          title: const Text(
                 'Search',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                // style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
               ),
-            ],
-          ),
         ),
         backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         body: SingleChildScrollView(

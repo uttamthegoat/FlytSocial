@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flytsocial/screens/users_profile.dart';
 import 'package:flytsocial/state/user_provider.dart';
@@ -11,114 +12,41 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  late var postResults = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getProfileInfo();
+  }
+
+  Future<void> getProfileInfo() async {
+    try {
+      final curUserId = widget.user['userId'];
+
+      // Query to find posts where the userId matches curUserId
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('userId', isEqualTo: curUserId)
+          .get();
+
+      // Map the documents to a list of maps
+      var posts = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+      // Update the state with the fetched posts
+      setState(() {
+        postResults = posts;
+      });
+    } catch (e) {
+      print('Error fetching profile info: $e');
+    }
+  }
+
   Future<void> _refreshProfile() async {
     // Simulate network request or any data fetching logic
     await Future.delayed(const Duration(seconds: 2));
-
-    // After fetching new data, update the state if necessary
-    setState(() {
-      // Update your profile data here
-    });
+    await getProfileInfo();
   }
-
-  final List<Map<String, dynamic>> _allPosts = [
-    {
-      'id': '1',
-      'postImageUrl':
-          'https://via.placeholder.com/150/0000FF/808080?Text=Post1',
-      'caption': 'I am the goat',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['goat', 'nature', 'man'],
-    },
-    {
-      'id': '2',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FF0000/FFFFFF?Text=Post2',
-      'caption': 'Beautiful sunset',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['sunset', 'nature', 'sky'],
-    },
-    {
-      'id': '3',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFFF00/000000?Text=Post3',
-      'caption': 'Delicious food',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['food', 'delicious', 'meal'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '4',
-      'postImageUrl':
-          'https://via.placeholder.com/150/00FF00/0000FF?Text=Post4',
-      'caption': 'At the beach',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['beach', 'sea', 'sand'],
-    },
-    {
-      'id': '5',
-      'postImageUrl':
-          'https://via.placeholder.com/150/800080/FFFFFF?Text=Post5',
-      'caption': 'Mountain hike',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['hiking', 'mountains', 'adventure'],
-    },
-    {
-      'id': '6',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFA500/000000?Text=Post6',
-      'caption': 'City lights',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['city', 'lights', 'night'],
-    },
-    {
-      'id': '7',
-      'postImageUrl':
-          'https://via.placeholder.com/150/FFC0CB/000000?Text=Post7',
-      'caption': 'Chilling with friends',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['friends', 'chill', 'fun'],
-    },
-    {
-      'id': '8',
-      'postImageUrl':
-          'https://via.placeholder.com/150/000000/FFFFFF?Text=Post8',
-      'caption': 'Exploring the forest',
-      'userId': '3MQavU6yi9Bskt8GAL1G',
-      'tags': ['forest', 'exploration', 'nature'],
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -275,9 +203,9 @@ class _ProfileState extends State<Profile> {
         crossAxisSpacing: 2,
         mainAxisSpacing: 2,
       ),
-      itemCount: _allPosts.length,
+      itemCount: postResults.length,
       itemBuilder: (context, index) {
-        final post = _allPosts[index];
+        final post = postResults[index];
         return IndividualPost(post: post);
       },
     );
