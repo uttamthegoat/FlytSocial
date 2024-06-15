@@ -71,7 +71,7 @@ class _ProfileState extends State<Profile> {
               _buildProfileHeader(curUser),
               _buildProfileDetails(curUser),
               _buildProfileActions(),
-              _buildTabs(),
+              _buildTabs(curUser),
             ],
           ),
         ),
@@ -181,7 +181,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildTabs() {
+  Widget _buildTabs(dynamic curUser) {
     return DefaultTabController(
       length: 1,
       child: Column(
@@ -192,13 +192,13 @@ class _ProfileState extends State<Profile> {
               Tab(icon: Icon(Icons.grid_on, color: Colors.deepPurple)),
             ],
           ),
-          _buildGridPosts()
+          _buildGridPosts(curUser)
         ],
       ),
     );
   }
 
-  Widget _buildGridPosts() {
+  Widget _buildGridPosts(dynamic curUser) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -215,7 +215,7 @@ class _ProfileState extends State<Profile> {
             final deletedPostId = await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => PostItem(post: post),
+                builder: (context) => PostItem(post: post, curUserId: curUser['userId']),
               ),
             );
             setState(() {

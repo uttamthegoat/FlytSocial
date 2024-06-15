@@ -4,9 +4,9 @@ import 'package:flytsocial/screens/post_item.dart';
 
 class UserProfile extends StatefulWidget {
   final Map<String, String> user;
-  final String curUser;
+  final String curUserId;
 
-  const UserProfile({super.key, required this.user, required this.curUser});
+  const UserProfile({super.key, required this.user, required this.curUserId});
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
 }
@@ -26,12 +26,12 @@ class _UserProfilePageState extends State<UserProfile> {
 
   Future<void> checkIfFollowing() async {
     final userProfile = widget.user['userId'];
-    final curUser = widget.curUser;
+    final curUserId = widget.curUserId;
     print(userProfile);
-    print(curUser);
+    print(curUserId);
     final docSnapshot = await FirebaseFirestore.instance
         .collection('follow')
-        .where('follower', isEqualTo: curUser)
+        .where('follower', isEqualTo: curUserId)
         .where('following', isEqualTo: userProfile)
         .get();
     setState(() {
@@ -77,13 +77,13 @@ class _UserProfilePageState extends State<UserProfile> {
   }
 
   void toggleFollow(BuildContext context, Map<String, String> user) async {
-    final String curUser = widget.curUser;
+    final String curUserId = widget.curUserId;
     final String userProfile = user['userId']!;
 
     if (isFollowing) {
       final snapshot = await FirebaseFirestore.instance
           .collection('follow')
-          .where('follower', isEqualTo: curUser)
+          .where('follower', isEqualTo: curUserId)
           .where('following', isEqualTo: userProfile)
           .get();
 
@@ -96,7 +96,7 @@ class _UserProfilePageState extends State<UserProfile> {
       });
     } else {
       await FirebaseFirestore.instance.collection('follow').add({
-        'follower': curUser,
+        'follower': curUserId,
         'following': userProfile,
       });
       setState(() {
@@ -187,7 +187,7 @@ class _UserProfilePageState extends State<UserProfile> {
               itemCount: postResults.length,
               itemBuilder: (context, index) {
                 final post = postResults[index];
-                return IndividualPost(post: post);
+                return IndividualPost(post: post, curUserId: widget.curUserId);
               },
             ),
           ],
@@ -219,20 +219,27 @@ class _UserProfilePageState extends State<UserProfile> {
   }
 }
 
-class IndividualPost extends StatelessWidget {
+class IndividualPost extends StatefulWidget {
   final Map<String, dynamic> post;
+  final String curUserId;
 
-  IndividualPost({required this.post});
+  IndividualPost({super.key, required this.post, required this.curUserId});
 
   @override
+  State<IndividualPost> createState() => _IndividualPostState();
+}
+
+class _IndividualPostState extends State<IndividualPost> {
+  @override
   Widget build(BuildContext context) {
+    final post = widget.post;
     print(post['imageUrl']);
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => PostItem(post: post),
+            builder: (context) => PostItem(post: post, curUserId: widget.curUserId),
           ),
         );
       },

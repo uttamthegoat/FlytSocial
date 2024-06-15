@@ -227,7 +227,10 @@ class _SearchScreenState extends State<AppSearch>
           itemCount: allPosts.length,
           itemBuilder: (context, index) {
             final post = allPosts[index];
-            return IndividualPost(post: post);
+            final curUserId =
+                    Provider.of<UserProvider>(context, listen: false)
+                        .currentUser['userId'];
+            return IndividualPost(post: post, curUserId: curUserId,);
           },
         ));
   }
@@ -269,7 +272,7 @@ class UserTile extends StatelessWidget {
                 final curUser =
                     Provider.of<UserProvider>(context, listen: false)
                         .currentUser;
-                return UserProfile(user: user, curUser: curUser['userId']);
+                return UserProfile(user: user, curUserId: curUser['userId']);
               },
             ),
           );

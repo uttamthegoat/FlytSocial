@@ -7,10 +7,8 @@ import 'package:flytsocial/screens/users_profile.dart';
 
 dynamic allRoutes = {
   '/editprofile': (context) => const EditProfile(),
-  '/postitem': (context) => const PostItem(post: {}),
-  '/userprofile': (context) => const UserProfile(
-        user: {},curUser:""
-      ),
+  '/postitem': (context) => const PostItem(post: {}, curUserId: ""),
+  '/userprofile': (context) => const UserProfile(user: {}, curUserId: ""),
   '/editpost': (context) => const EditPost(
         post: {},
       ),

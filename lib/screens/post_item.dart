@@ -2,12 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flytsocial/screens/edit_post.dart';
-import 'package:flytsocial/state/user_provider.dart';
-import 'package:provider/provider.dart';
 
 class PostItem extends StatefulWidget {
   final Map<String, dynamic> post;
-  const PostItem({super.key, required this.post});
+  final String curUserId;
+  const PostItem({super.key, required this.post, required this.curUserId});
 
   @override
   _PostItemState createState() => _PostItemState();
@@ -16,6 +15,8 @@ class PostItem extends StatefulWidget {
 class _PostItemState extends State<PostItem> {
   bool _isExpanded = false;
   bool _isLiked = false;
+  int _likeCount = 0;
+  late String curUserId = "";
   final TextEditingController _commentController = TextEditingController();
   final List<String> _comments = [];
   late Map<String, dynamic> postItem = {};
@@ -26,8 +27,38 @@ class _PostItemState extends State<PostItem> {
     setPostInfo();
   }
 
-  void setPostInfo() {
+  void setPostInfo() async {
     postItem = widget.post;
+    final currentPostId = postItem['postId'];
+    curUserId = widget.curUserId;
+    await getLikeInfo(currentPostId, curUserId);
+  }
+
+  Future<void> getLikeInfo(String currentPostId, String curUserId) async {
+    try {
+      // Get the count of likes for the post
+      final likeQuerySnapshot = await FirebaseFirestore.instance
+          .collection('likes')
+          .where('postId', isEqualTo: currentPostId)
+          .get();
+      int likeCount = likeQuerySnapshot.docs.length;
+
+      // Check if the current user has liked the post
+      final userLikeQuerySnapshot = await FirebaseFirestore.instance
+          .collection('likes')
+          .where('postId', isEqualTo: currentPostId)
+          .where('userId', isEqualTo: curUserId)
+          .get();
+      bool isLiked = userLikeQuerySnapshot.docs.isNotEmpty;
+
+      // Use likeCount and _isLiked as needed in your widget's state
+      setState(() {
+        _likeCount = likeCount;
+        _isLiked = isLiked;
+      });
+    } catch (e) {
+      print('Error fetching like info: $e');
+    }
   }
 
   void _toggleExpand() {
@@ -36,10 +67,39 @@ class _PostItemState extends State<PostItem> {
     });
   }
 
-  void _toggleLike() {
-    setState(() {
-      _isLiked = !_isLiked;
-    });
+  void _likePost() async {
+    try {
+      if (!_isLiked) {
+        await FirebaseFirestore.instance.collection('likes').add({
+          'postId': postItem['postId'],
+          'userId': curUserId,
+        });
+        setState(() {
+          _isLiked = true;
+          _likeCount = _likeCount + 1;
+        });
+      } else {
+        final likeDocSnapshot = await FirebaseFirestore.instance
+            .collection('likes')
+            .where('postId', isEqualTo: postItem['postId'])
+            .where('userId', isEqualTo: curUserId)
+            .get();
+        if (likeDocSnapshot.docs.isNotEmpty) {
+          // Remove the like document
+          await FirebaseFirestore.instance
+              .collection('likes')
+              .doc(likeDocSnapshot.docs.first.id)
+              .delete();
+          // Update the state
+          setState(() {
+            _isLiked = false;
+            _likeCount -= 1;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error liking post: $e');
+    }
   }
 
   void _incrementCommentCount() {
@@ -140,9 +200,8 @@ class _PostItemState extends State<PostItem> {
 
   @override
   Widget build(BuildContext context) {
-    final curUser = Provider.of<UserProvider>(context).currentUser;
     print(postItem['userId']);
-    print(curUser['userId']);
+    print(curUserId);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Posts'),
@@ -174,8 +233,8 @@ class _PostItemState extends State<PostItem> {
                     ),
                   ]),
                   // show this only if the user owns the post
-                  // curUser.userid == post.userid ==> show
-                  if (curUser['userId'] == postItem['userId'])
+                  // curUserId == post.userid ==> show
+                  if (curUserId == postItem['userId'])
                     GestureDetector(
                       onTap: () => _showBottomSheet(context, postItem),
                       child: const Icon(Icons.more_vert_sharp),
@@ -199,14 +258,19 @@ class _PostItemState extends State<PostItem> {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      _isLiked ? Icons.favorite : Icons.favorite_border,
-                      color: _isLiked ? Colors.red : Colors.black,
-                    ),
-                    onPressed: _toggleLike,
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          _isLiked ? Icons.favorite : Icons.favorite_border,
+                          color: _isLiked ? Colors.red : Colors.black,
+                        ),
+                        onPressed: _likePost,
+                      ),
+                      Text('$_likeCount')
+                    ],
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   IconButton(
                     icon: const Icon(Icons.comment),
                     onPressed: _toggleExpand,
