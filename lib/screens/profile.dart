@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flytsocial/screens/users_profile.dart';
+import 'package:flytsocial/screens/post_item.dart';
 import 'package:flytsocial/state/user_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -210,7 +210,27 @@ class _ProfileState extends State<Profile> {
       itemCount: postResults.length,
       itemBuilder: (context, index) {
         final post = postResults[index];
-        return IndividualPost(post: post);
+        return GestureDetector(
+          onTap: () async {
+            final deletedPostId = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PostItem(post: post),
+              ),
+            );
+            setState(() {
+              postResults
+                  .removeWhere((post) => post['postId'] == deletedPostId);
+            });
+          },
+          child: Container(
+            color: Colors.grey[300],
+            child: Image.network(
+              post['postImageUrl'],
+              fit: BoxFit.cover,
+            ),
+          ),
+        );
       },
     );
   }

@@ -157,7 +157,6 @@ class _EditPostState extends State<EditPost> {
     super.dispose();
   }
 
-  Future<dynamic> uploadImageToFirebase(File imageFile) async {}
 
   @override
   Widget build(BuildContext context) {

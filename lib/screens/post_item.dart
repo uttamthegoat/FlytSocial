@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flytsocial/screens/edit_post.dart';
 import 'package:flytsocial/state/user_provider.dart';
@@ -96,9 +98,13 @@ class _PostItemState extends State<PostItem> {
                     'Delete Post',
                     style: TextStyle(color: Colors.red),
                   ),
-                  onTap: () {
-                    // write logic to delete post
-                    // then navigate to previous page using navigator.pop()
+                  onTap: () async {
+                    final bool isDeleted = await _deletePost(
+                        context, postItem['postId'], postItem['postImageUrl']);
+                    if (isDeleted) {
+                      Navigator.pop(context);
+                      Navigator.pop(context, post['postId']);
+                    }
                   },
                 ),
               )
@@ -107,6 +113,29 @@ class _PostItemState extends State<PostItem> {
         );
       },
     );
+  }
+
+  Future<bool> _deletePost(
+      BuildContext context, String postId, String postImageUrl) async {
+    try {
+      // delete the image in the firebase storage
+      final existingImageRef =
+          FirebaseStorage.instance.refFromURL(postImageUrl);
+      await existingImageRef.delete();
+      // delete the document
+      await FirebaseFirestore.instance.collection('posts').doc(postId).delete();
+      // Show a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Post deleted successfully')),
+      );
+      return true;
+    } catch (e) {
+      print('Error deleting post: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete post')),
+      );
+      return false;
+    }
   }
 
   @override
