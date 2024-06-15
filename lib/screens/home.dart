@@ -2,7 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flytsocial/state/user_provider.dart';
 import 'package:provider/provider.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
+  final dynamic currentUser;
+  const Home({super.key, required this.currentUser});
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   final List<Map<String, dynamic>> postResults = [
     {
       'postId': '1',
@@ -75,11 +83,7 @@ class _PostWidgetState extends State<PostWidget> {
     postItem = widget.post;
   }
 
-  
-
-  void _likePost() {
-
-  }
+  void _likePost() {}
 
   void _showComments(BuildContext context) {
     showModalBottomSheet(
@@ -94,9 +98,9 @@ class _PostWidgetState extends State<PostWidget> {
   @override
   Widget build(BuildContext context) {
     return Card(
-       shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero, // Removes the border radius
-            ),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero, // Removes the border radius
+      ),
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,15 +115,15 @@ class _PostWidgetState extends State<PostWidget> {
             ),
           ),
           Container(
-              height: 500,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(postItem['postImageUrl']),
-                  fit: BoxFit.cover,
-                ),
+            height: 500,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(postItem['postImageUrl']),
+                fit: BoxFit.cover,
               ),
             ),
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -147,17 +151,17 @@ class _PostWidgetState extends State<PostWidget> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Row(
-                      children: postItem['tags'].map<Widget>((tag) {
-                        return Padding(
-                          padding: const EdgeInsets.only(
-                              right: 8.0), // Adjust the padding value as needed
-                          child: Text(
-                            '#$tag',
-                            style: const TextStyle(color: Colors.blue),
-                          ),
-                        );
-                      }).toList(),
-                    )
+                  children: postItem['tags'].map<Widget>((tag) {
+                    return Padding(
+                      padding: const EdgeInsets.only(
+                          right: 8.0), // Adjust the padding value as needed
+                      child: Text(
+                        '#$tag',
+                        style: const TextStyle(color: Colors.blue),
+                      ),
+                    );
+                  }).toList(),
+                )
               ],
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:flytsocial/screens/edit_profile.dart';
 import 'package:flytsocial/screens/home.dart';
 import 'package:flytsocial/screens/post_item.dart';
 import 'package:flytsocial/screens/profile.dart';
+import 'package:flytsocial/screens/user_connections.dart';
 import 'package:flytsocial/screens/users_profile.dart';
 
 dynamic allRoutes = {
@@ -16,6 +17,9 @@ dynamic allRoutes = {
         user: {},
       ),
   '/home': (context) => const Home(
-        user: {},
+        currentUser: {},
+      ),
+  '/connections': (context) => const UserConnections(
+        currentUserId: "",
       ),
 };

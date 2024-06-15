@@ -15,7 +15,7 @@ class _UserProfilePageState extends State<UserProfile> {
   late bool isFollowing = false;
   late int followersCount = 0;
   late int followingCount = 0;
-  late int postsCount = 8;
+  late int postsCount = 0;
   late List<Map<String, dynamic>> postResults = [];
 
   @override
@@ -27,7 +27,6 @@ class _UserProfilePageState extends State<UserProfile> {
   Future<void> checkIfFollowing() async {
     final userProfile = widget.user['userId'];
     final curUserId = widget.curUserId;
-    print(userProfile);
     print(curUserId);
     final docSnapshot = await FirebaseFirestore.instance
         .collection('follow')
@@ -43,16 +42,20 @@ class _UserProfilePageState extends State<UserProfile> {
     final userProfile = widget.user['userId'];
 
     // Fetch followers count
-    final followersSnapshot = await FirebaseFirestore.instance
-        .collection('follow')
-        .where('following', isEqualTo: userProfile)
-        .get();
+    final followersCnt = (await FirebaseFirestore.instance
+            .collection('follow')
+            .where('following', isEqualTo: userProfile)
+            .get())
+        .docs
+        .length;
 
     // Fetch following count
-    final followingSnapshot = await FirebaseFirestore.instance
-        .collection('follow')
-        .where('follower', isEqualTo: userProfile)
-        .get();
+    final followingCnt = (await FirebaseFirestore.instance
+            .collection('follow')
+            .where('follower', isEqualTo: userProfile)
+            .get())
+        .docs
+        .length;
 
     // Query to find posts where the userId matches curUserId
     final querySnapshot = await FirebaseFirestore.instance
@@ -68,9 +71,10 @@ class _UserProfilePageState extends State<UserProfile> {
     }).toList();
 
     setState(() {
-      followersCount = followersSnapshot.docs.length;
-      followingCount = followingSnapshot.docs.length;
+      followersCount = followersCnt;
+      followingCount = followingCnt;
       postResults = posts;
+      postsCount = posts.length;
     });
     // check if the loggedin user follows this profile
     await checkIfFollowing();
@@ -233,13 +237,13 @@ class _IndividualPostState extends State<IndividualPost> {
   @override
   Widget build(BuildContext context) {
     final post = widget.post;
-    print(post['imageUrl']);
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => PostItem(post: post, curUserId: widget.curUserId),
+            builder: (context) =>
+                PostItem(post: post, curUserId: widget.curUserId),
           ),
         );
       },

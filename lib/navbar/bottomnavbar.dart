@@ -82,7 +82,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
         controller: pageController,
         onPageChanged: onPageChanged,
         children: [
-          Home(user: curUser),
+          Home(currentUser: curUser),
           const AppSearch(),
           NewPost(),
           const About(),
