@@ -13,13 +13,14 @@ class PostItem extends StatefulWidget {
 }
 
 class _PostItemState extends State<PostItem> {
-  bool _isExpanded = false;
   bool _isLiked = false;
   int _likeCount = 0;
   late String curUserId = "";
   final TextEditingController _commentController = TextEditingController();
   final List<String> _comments = [];
   late Map<String, dynamic> postItem = {};
+  late Map<String, String> postOwner = {};
+  late bool loading = false;
 
   @override
   void initState() {
@@ -32,6 +33,7 @@ class _PostItemState extends State<PostItem> {
     final currentPostId = postItem['postId'];
     curUserId = widget.curUserId;
     await getLikeInfo(currentPostId, curUserId);
+    setPostOwner();
   }
 
   Future<void> getLikeInfo(String currentPostId, String curUserId) async {
@@ -61,10 +63,28 @@ class _PostItemState extends State<PostItem> {
     }
   }
 
-  void _toggleExpand() {
-    setState(() {
-      _isExpanded = !_isExpanded;
-    });
+  void setPostOwner() async {
+    final userId = postItem['userId'];
+    try {
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      Map<String, dynamic> userDetails =
+          userSnapshot.data() as Map<String, dynamic>;
+      userDetails['userId'] = userId;
+
+      // Convert all values to strings
+      Map<String, String> userInfo =
+          userDetails.map((key, value) => MapEntry(key, value.toString()));
+      setState(() {
+        postOwner = userInfo;
+        loading = true;
+      });
+      print(postOwner);
+    } catch (e) {
+      print('Error fetching user details: $e');
+    }
   }
 
   void _likePost() async {
@@ -100,13 +120,6 @@ class _PostItemState extends State<PostItem> {
     } catch (e) {
       print('Error liking post: $e');
     }
-  }
-
-  void _incrementCommentCount() {
-    setState(() {
-      _isExpanded =
-          true; // Show the comment section when the comment button is pressed
-    });
   }
 
   void _addComment() {
@@ -186,22 +199,35 @@ class _PostItemState extends State<PostItem> {
       await FirebaseFirestore.instance.collection('posts').doc(postId).delete();
       // Show a success message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Post deleted successfully')),
+        const SnackBar(content: Text('Post deleted successfully')),
       );
       return true;
     } catch (e) {
       print('Error deleting post: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete post')),
+        const SnackBar(content: Text('Failed to delete post')),
       );
       return false;
     }
   }
 
+  // open comments
+  void _showComments(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (BuildContext context) {
+        return FractionallySizedBox(
+          heightFactor: 0.9,
+          child: CommentSection(post: postItem, currentUser: postOwner),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(postItem['userId']);
-    print(curUserId);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Posts'),
@@ -209,48 +235,51 @@ class _PostItemState extends State<PostItem> {
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
+          child: Container(
+        margin: const EdgeInsets.fromLTRB(0, 0, 0, 60),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Row(children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundImage:
-                          NetworkImage('https://via.placeholder.com/150/'),
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      'Username',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ]),
-                  // show this only if the user owns the post
-                  // curUserId == post.userid ==> show
-                  if (curUserId == postItem['userId'])
-                    GestureDetector(
-                      onTap: () => _showBottomSheet(context, postItem),
-                      child: const Icon(Icons.more_vert_sharp),
+              child: loading
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundImage:
+                                NetworkImage(postOwner['imageUrl'] ?? ''),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            postOwner['username'] ?? '',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ]),
+                        // show this only if the user owns the post
+                        // curUserId == post.userid ==> show
+                        if (curUserId == postItem['userId'])
+                          GestureDetector(
+                            onTap: () => _showBottomSheet(context, postItem),
+                            child: const Icon(Icons.more_vert_sharp),
+                          )
+                      ],
                     )
-                ],
-              ),
+                  : Container(
+                      child: const Text('username'),
+                    ),
             ),
             // Post Image
             Container(
-              height: 500,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(postItem['postImageUrl']),
-                  fit: BoxFit.cover,
-                ),
+              width: double.infinity, // Full width of the screen
+              child: FittedBox(
+                fit: BoxFit.contain, // Ensure the whole image is visible
+                child: Image.network(postItem['postImageUrl']),
               ),
             ),
             // Like and Comment Buttons
@@ -273,7 +302,7 @@ class _PostItemState extends State<PostItem> {
                   const SizedBox(width: 10),
                   IconButton(
                     icon: const Icon(Icons.comment),
-                    onPressed: _toggleExpand,
+                    onPressed: () => _showComments(context),
                   ),
                 ],
               ),
@@ -303,67 +332,185 @@ class _PostItemState extends State<PostItem> {
                     )
                   ],
                 )),
-            // Comment Section
-
-            if (_isExpanded)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Display comments
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextField(
-                        controller: _commentController,
-                        decoration: InputDecoration(
-                          labelText: 'Comment',
-                          hintText: 'Add a comment...',
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.send),
-                            onPressed: _addComment,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 10, 0, 5),
-                          child: Text(
-                            _comments.isNotEmpty
-                                ? 'All comments'
-                                : 'No comments',
-                            style: const TextStyle(
-                              color: Colors.black, // Darker font color
-                              fontSize: 18,
-                              fontWeight:
-                                  FontWeight.bold, // Increased font weight
-                            ),
-                          ),
-                        ),
-                        for (var comment in _comments)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4.0, horizontal: 8.0),
-                            child: Text(
-                              comment,
-                              style: const TextStyle(
-                                color: Colors.black, // Darker font color
-                                fontSize: 14,
-                                fontWeight:
-                                    FontWeight.normal, // Increased font weight
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
           ],
         ),
+      )),
+    );
+  }
+}
+
+// comment section
+class CommentSection extends StatefulWidget {
+  final Map<String, dynamic> post;
+  final Map<String, String> currentUser;
+
+  CommentSection({required this.post, required this.currentUser});
+
+  @override
+  _CommentSectionState createState() => _CommentSectionState();
+}
+
+class _CommentSectionState extends State<CommentSection> {
+  final TextEditingController _commentController = TextEditingController();
+  late int commentCount = 0;
+  late List<Map<String, String>> _postComments = [];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // fetch the comments from the database based on the postId
+    getComments();
+  }
+
+  Future<void> getComments() async {
+    final String postId = widget.post['postId'];
+    try {
+      // Fetch all comments for the given postId
+      QuerySnapshot commentSnapshot = await FirebaseFirestore.instance
+          .collection('comments')
+          .where('postId', isEqualTo: postId)
+          .get();
+      // Iterate over each comment document
+      for (var commentDoc in commentSnapshot.docs) {
+        String commentText = commentDoc['comment'];
+        String userId = commentDoc['userId'];
+        // Fetch username from the users collection based on userId
+        DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .get();
+        if (userSnapshot.exists) {
+          String username = userSnapshot['username'];
+          // Create a map with the comment details
+          Map<String, String> commentDetails = {
+            'comment': commentText,
+            'postId': postId,
+            'userId': userId,
+            'username': username,
+          };
+          // Add the map to the comments list
+          setState(() {
+            _postComments.add(commentDetails);
+          });
+        }
+      }
+      setState(() {
+      loading = true;
+    });
+    } catch (e) {
+      print('Error fetching comments: $e');
+    }
+  }
+
+  void addComment(String commentText) async {
+    if (commentText.isNotEmpty) {
+      final String postId = widget.post['postId'];
+      final Map<String, String> currentUser = widget.currentUser;
+      try {
+        Map<String, String> newComment = {
+          'comment': commentText,
+          'postId': postId,
+          'userId': currentUser['userId']!,
+          'username': currentUser['username']!,
+        };
+        await _firestore.collection('comments').add({
+          'comment': newComment['comment'],
+          'postId': newComment['postId'],
+          'userId': newComment['userId'],
+        });
+        setState(() {
+          _postComments.add(newComment);
+          print(_postComments);
+          _commentController.clear();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Comment succesfully posted.')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error adding comment: $e')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  loading?ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _postComments.length,
+                    itemBuilder: (context, index) {
+                      final comment = _postComments[index];
+                      return ListTile(
+                        title: Text(
+                          comment['username'] ?? '',
+                          style: const TextStyle(
+                              fontSize: 16.0), // Adjust font size here
+                        ),
+                        subtitle: Text(
+                          comment['comment']!,
+                          style: const TextStyle(
+                              fontSize: 16.0), // Adjust font size here
+                        ),
+                      );
+                    },
+                  ):Container(
+                    child: const Center(
+                      child: Text('Loading...'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _commentController,
+                    decoration: InputDecoration(
+                      hintText: 'Search here...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Colors.black),
+                      ),
+                      hintStyle:
+                          const TextStyle(color: Colors.black, fontSize: 18),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.clear, color: Colors.black),
+                        onPressed: () {
+                          setState(() {
+                            _commentController.clear();
+                          });
+                        },
+                      ),
+                    ),
+                    style: const TextStyle(color: Colors.black, fontSize: 18.0),
+                    cursorColor: Colors.black,
+                    onSubmitted: (String value) => addComment(value),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
