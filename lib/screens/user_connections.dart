@@ -69,7 +69,6 @@ class _UserConnectionsState extends State<UserConnections>
       setState(() {
         myFollowers = followerUsers;
       });
-      // You can use this list to update your UI or state management as needed
     } catch (e) {
       print('Error fetching followers: $e');
     }
@@ -148,7 +147,7 @@ class _UserConnectionsState extends State<UserConnections>
   }
 }
 
-class UserList extends StatelessWidget {
+class UserList extends StatefulWidget {
   final List users;
   final String type;
   final String curUserId;
@@ -159,6 +158,44 @@ class UserList extends StatelessWidget {
     required this.type,
     required this.curUserId,
   });
+
+  @override
+  State<UserList> createState() => _UserListState();
+}
+
+class _UserListState extends State<UserList> {
+  late List users = [];
+  late String type = '';
+  late String curUserId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    setInitialInfo();
+  }
+
+  void setInitialInfo() {
+    setState(() {
+      users = widget.users;
+      type = widget.type;
+      curUserId = widget.curUserId;
+    });
+  }
+
+  void _unFollow(String userProfileId) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('follow')
+        .where('follower', isEqualTo: curUserId)
+        .where('following', isEqualTo: userProfileId)
+        .get();
+
+    for (var doc in snapshot.docs) {
+      await doc.reference.delete();
+    }
+    setState(() {
+      users.removeWhere((user) => user['userId'] == userProfileId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -189,9 +226,7 @@ class UserList extends StatelessWidget {
           ), // Placeholder for username
           trailing: type == 'Following'
               ? OutlinedButton(
-                  onPressed: () {
-                    // Handle unfollow action
-                  },
+                  onPressed: () => _unFollow(user['userId']),
                   child: const Text('Unfollow'),
                 )
               : null,

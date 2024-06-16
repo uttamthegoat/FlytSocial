@@ -145,7 +145,7 @@ class _UserProfilePageState extends State<UserProfile> {
                         const SizedBox(height: 8),
                         ElevatedButton(
                           onPressed: () => toggleFollow(context, user),
-                          child: Text(isFollowing ? 'Following' : 'Follow'),
+                          child: Text(isFollowing ? 'Unfollow' : 'Follow'),
                         ),
                       ],
                     ),
