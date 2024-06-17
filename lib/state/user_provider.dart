@@ -182,4 +182,11 @@ class UserProvider with ChangeNotifier {
     final jsonString = prefs.getString('curuser');
     curUser = json.decode(jsonString!);
   }
+
+  Future<void> updateUser(Map<String, dynamic> updatedUser) async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonUser = jsonEncode(updatedUser);
+    await prefs.setString("curuser", jsonUser);
+    await setUserInfo();
+  }
 }

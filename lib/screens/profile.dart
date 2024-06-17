@@ -18,17 +18,24 @@ class _ProfileState extends State<Profile> {
   late int followersCount = 0;
   late int followingCount = 0;
   late int postsCount = 0;
+  late Map<String, dynamic> currentUser = {};
 
   @override
   void initState() {
     super.initState();
+    setUserInfo();
     getProfileInfo();
+  }
+
+  void setUserInfo() {
+    setState(() {
+      currentUser = widget.user;
+    });
   }
 
   Future<void> getProfileInfo() async {
     try {
-      final curUserId = widget.user['userId'];
-      print(widget.user);
+      final curUserId = currentUser['userId'];
       // Fetch followers count
       final followersSnapshot = await FirebaseFirestore.instance
           .collection('follow')
@@ -74,7 +81,7 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    final curUser = widget.user;
+    final curUser = currentUser;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -88,7 +95,7 @@ class _ProfileState extends State<Profile> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               _buildProfileHeader(
-                  curUser, postsCount, followersCount, followingCount),
+                  context, curUser, postsCount, followersCount, followingCount),
               _buildProfileDetails(curUser),
               _buildProfileActions(),
               _buildTabs(curUser),
@@ -99,8 +106,8 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildProfileHeader(Map<String, dynamic> curUser, int postsCount,
-      int followersCount, int followingCount) {
+  Widget _buildProfileHeader(BuildContext context, Map<String, dynamic> curUser,
+      int postsCount, int followersCount, int followingCount) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -108,9 +115,9 @@ class _ProfileState extends State<Profile> {
         children: [
           CircleAvatar(
             radius: 40,
-            backgroundImage: NetworkImage(curUser['imageUrl'] == ''
+            backgroundImage: NetworkImage(currentUser['imageUrl'] == ''
                 ? 'https://via.placeholder.com/150'
-                : curUser['imageUrl']), // Replace with your image URL
+                : currentUser['imageUrl']), // Replace with your image URL
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -118,9 +125,9 @@ class _ProfileState extends State<Profile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 23),
+                  padding: const EdgeInsets.symmetric(horizontal: 23),
                   child: Text(
-                    curUser['username'],
+                    currentUser['username'],
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -140,7 +147,7 @@ class _ProfileState extends State<Profile> {
                           MaterialPageRoute(
                             builder: (context) {
                               return UserConnections(
-                                currentUserId: curUser['userId'],
+                                currentUserId: currentUser['userId'],
                               );
                             },
                           ),
@@ -156,7 +163,7 @@ class _ProfileState extends State<Profile> {
                           MaterialPageRoute(
                             builder: (context) {
                               return UserConnections(
-                                currentUserId: curUser['userId'],
+                                currentUserId: currentUser['userId'],
                               );
                             },
                           ),
@@ -171,8 +178,8 @@ class _ProfileState extends State<Profile> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildButton('Edit Profile'),
-                    _buildButton('Sign Out'),
+                    _buildButton(context, 'Edit Profile'),
+                    _buildButton(context, 'Sign Out'),
                   ],
                 ),
               ],
@@ -194,7 +201,7 @@ class _ProfileState extends State<Profile> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 0),
                 child: Text(
-                  curUser['name'],
+                  currentUser['name'],
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 17),
                 ),
@@ -203,7 +210,7 @@ class _ProfileState extends State<Profile> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 0),
                 child: Text(
-                  curUser['email'],
+                  currentUser['email'],
                   style: const TextStyle(
                       fontSize: 15, fontWeight: FontWeight.w600),
                 ),
@@ -211,7 +218,7 @@ class _ProfileState extends State<Profile> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 0),
                 child: Text(
-                  curUser['bio'],
+                  currentUser['bio'],
                   style: const TextStyle(
                       fontSize: 15, fontWeight: FontWeight.w500),
                 ),
@@ -268,7 +275,7 @@ class _ProfileState extends State<Profile> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    PostItem(post: post, curUserId: curUser['userId']),
+                    PostItem(post: post, curUserId: currentUser['userId']),
               ),
             );
             if (deletedPostId != null) {
@@ -303,7 +310,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildButton(String text) {
+  Widget _buildButton(BuildContext context, String text) {
     return OutlinedButton(
       onPressed: () async {
         // Handle button press
@@ -311,12 +318,17 @@ class _ProfileState extends State<Profile> {
           // Implement sign out functionality here
           await Provider.of<UserProvider>(context, listen: false).signOut();
         } else {
-          Navigator.push(
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => EditProfile(user: widget.user),
             ),
           );
+          if (result != null) {
+            setState(() {
+              currentUser = result;
+            });
+          }
         }
       },
       style: OutlinedButton.styleFrom(

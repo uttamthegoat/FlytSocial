@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flytsocial/state/user_provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfile extends StatefulWidget {
   final Map<String, dynamic> user;
@@ -22,6 +26,7 @@ class _EditProfilePageState extends State<EditProfile> {
   final ImagePicker _picker = ImagePicker();
   final _formKey = GlobalKey<FormState>();
   late List<String> usedUsernames = [];
+  late bool hasEdited = false;
 
   @override
   void initState() {
@@ -139,8 +144,24 @@ class _EditProfilePageState extends State<EditProfile> {
             .doc(curUserId)
             .update(updatedData);
 
+        // Fetch the updated document
+        DocumentSnapshot updatedDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(curUserId)
+            .get();
+
+        Map<String, dynamic> updatedUser =
+            updatedDoc.data() as Map<String, dynamic>;
+        updatedUser['userId'] = widget.user['userId'];
+
+        setState(() {
+          hasEdited = true;
+        });
+        await updateUser(updatedUser);
+
         // Clear the form
         _clearForm();
+        Navigator.pop(context, updatedUser);
 
         // Show a success message
         ScaffoldMessenger.of(context).showSnackBar(
@@ -161,8 +182,7 @@ class _EditProfilePageState extends State<EditProfile> {
       final String userId = widget.user['userId'];
       // deleting the imageUrl
       if (imageUrl != '') {
-        final existingImageRef =
-            FirebaseStorage.instance.refFromURL(imageUrl);
+        final existingImageRef = FirebaseStorage.instance.refFromURL(imageUrl);
         await existingImageRef.delete();
       }
       String fileName = DateTime.now().millisecondsSinceEpoch.toString();
@@ -178,6 +198,13 @@ class _EditProfilePageState extends State<EditProfile> {
       );
       return null;
     }
+  }
+
+  Future<void> updateUser(Map<String, dynamic> updatedUser) async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonUser = jsonEncode(updatedUser);
+    await prefs.setString("curuser", jsonUser);
+    await Provider.of<UserProvider>(context, listen: false).setUserInfo();
   }
 
   @override
