@@ -250,8 +250,6 @@ class UserTile extends StatelessWidget {
   final Map<String, String> user;
   final defaultName = 'John Doe';
   final defaultusername = 'ligmaBalls';
-  final defaultImage =
-      'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png';
 
   UserTile({required this.user});
 
@@ -282,7 +280,7 @@ class UserTile extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(50.0),
               child: Image.network(
-                user['imageUrl'] ?? defaultImage,
+                user['imageUrl']==''? 'https://via.placeholder.com/150':user['imageUrl']!,
                 width: 50,
                 height: 50,
                 fit: BoxFit.cover,

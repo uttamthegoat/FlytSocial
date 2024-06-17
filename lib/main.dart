@@ -54,9 +54,7 @@ class MainAppState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    initializeUser().then((_) {
-       // Trigger a rebuild to reflect changes in curUser
-    });
+    initializeUser();
   }
 
   @override

@@ -205,8 +205,9 @@ class _UserListState extends State<UserList> {
         final user = users[index];
         return ListTile(
           leading: CircleAvatar(
-            backgroundImage:
-                NetworkImage(user['imageUrl']), // Placeholder for user image
+            backgroundImage: NetworkImage(user['imageUrl'] == ''
+                ? 'https://via.placeholder.com/150'
+                : 'https://via.placeholder.com/150'), // Placeholder for user image
           ),
           title: GestureDetector(
             onTap: () {

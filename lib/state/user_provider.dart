@@ -84,7 +84,7 @@ class UserProvider with ChangeNotifier {
           "userId": "",
           "name": _user?.displayName,
           "email": _user?.email,
-          "imageUrl": _user?.photoURL,
+          "imageUrl": '',
           "bio": "",
           "username": _user != null
               ? await generateUsername(_user?.displayName)
@@ -96,10 +96,20 @@ class UserProvider with ChangeNotifier {
           };
           _newUser.remove("userId");
           final db = FirebaseFirestore.instance;
-          db
-              .collection("users")
-              .add(_newUser)
-              .then((DocumentReference doc) => newUser['userId'] = doc.id);
+          db.collection("users").add(_newUser);
+
+          // fetch the user details using email
+          final checkEmail = _user?.email;
+          final snapshot = await FirebaseFirestore.instance
+              .collection('users')
+              .where('email', isEqualTo: checkEmail)
+              .get();
+          newUser['userId'] = snapshot.docs.first.id;
+          newUser['name'] = snapshot.docs.first.data()['name'];
+          newUser['email'] = snapshot.docs.first.data()['email'];
+          newUser['imageUrl'] = snapshot.docs.first.data()['imageUrl'];
+          newUser['bio'] = snapshot.docs.first.data()['bio'];
+          newUser['username'] = snapshot.docs.first.data()['username'];
         } else {
           final checkEmail = _user?.email;
           final snapshot = await FirebaseFirestore.instance

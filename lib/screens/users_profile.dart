@@ -127,8 +127,9 @@ class _UserProfilePageState extends State<UserProfile> {
                 children: <Widget>[
                   CircleAvatar(
                     radius: 45,
-                    backgroundImage: NetworkImage(
-                        user['imageUrl'] ?? 'https://via.placeholder.com/150'),
+                    backgroundImage: NetworkImage(user['imageUrl'] == ''
+                        ? 'https://via.placeholder.com/150'
+                        : 'https://via.placeholder.com/150'),
                   ),
                   const SizedBox(width: 16),
                   Expanded(

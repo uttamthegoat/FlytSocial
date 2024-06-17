@@ -241,39 +241,37 @@ class _PostItemState extends State<PostItem> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: loading
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundImage:
-                                NetworkImage(postOwner['imageUrl'] ?? ''),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            postOwner['username'] ?? '',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ]),
-                        // show this only if the user owns the post
-                        // curUserId == post.userid ==> show
-                        if (curUserId == postItem['userId'])
-                          GestureDetector(
-                            onTap: () => _showBottomSheet(context, postItem),
-                            child: const Icon(Icons.more_vert_sharp),
-                          )
-                      ],
-                    )
-                  : Container(
-                      child: const Text('username'),
-                    ),
-            ),
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundImage: NetworkImage(loading
+                            ? (postOwner['imageUrl'] == ''
+                                ? 'https://via.placeholder.com/150'
+                                : postOwner['imageUrl']!)
+                            : 'https://via.placeholder.com/150'),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        loading ? postOwner['username'] ?? '' : 'Username',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ]),
+                    // show this only if the user owns the post
+                    // curUserId == post.userid ==> show
+                    if (curUserId == postItem['userId'])
+                      GestureDetector(
+                        onTap: () => _showBottomSheet(context, postItem),
+                        child: const Icon(Icons.more_vert_sharp),
+                      )
+                  ],
+                )),
             // Post Image
             Container(
               width: double.infinity, // Full width of the screen
@@ -397,8 +395,8 @@ class _CommentSectionState extends State<CommentSection> {
         }
       }
       setState(() {
-      loading = true;
-    });
+        loading = true;
+      });
     } catch (e) {
       print('Error fetching comments: $e');
     }
@@ -450,30 +448,32 @@ class _CommentSectionState extends State<CommentSection> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  loading?ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _postComments.length,
-                    itemBuilder: (context, index) {
-                      final comment = _postComments[index];
-                      return ListTile(
-                        title: Text(
-                          comment['username'] ?? '',
-                          style: const TextStyle(
-                              fontSize: 16.0), // Adjust font size here
+                  loading
+                      ? ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _postComments.length,
+                          itemBuilder: (context, index) {
+                            final comment = _postComments[index];
+                            return ListTile(
+                              title: Text(
+                                comment['username'] ?? '',
+                                style: const TextStyle(
+                                    fontSize: 16.0), // Adjust font size here
+                              ),
+                              subtitle: Text(
+                                comment['comment']!,
+                                style: const TextStyle(
+                                    fontSize: 16.0), // Adjust font size here
+                              ),
+                            );
+                          },
+                        )
+                      : Container(
+                          child: const Center(
+                            child: Text('Loading...'),
+                          ),
                         ),
-                        subtitle: Text(
-                          comment['comment']!,
-                          style: const TextStyle(
-                              fontSize: 16.0), // Adjust font size here
-                        ),
-                      );
-                    },
-                  ):Container(
-                    child: const Center(
-                      child: Text('Loading...'),
-                    ),
-                  ),
                 ],
               ),
             ),

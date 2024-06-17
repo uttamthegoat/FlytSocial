@@ -28,7 +28,7 @@ class _ProfileState extends State<Profile> {
   Future<void> getProfileInfo() async {
     try {
       final curUserId = widget.user['userId'];
-
+      print(widget.user);
       // Fetch followers count
       final followersSnapshot = await FirebaseFirestore.instance
           .collection('follow')
@@ -108,8 +108,9 @@ class _ProfileState extends State<Profile> {
         children: [
           CircleAvatar(
             radius: 40,
-            backgroundImage: NetworkImage(
-                curUser['imageUrl']), // Replace with your image URL
+            backgroundImage: NetworkImage(curUser['imageUrl'] == ''
+                ? 'https://via.placeholder.com/150'
+                : curUser['imageUrl']), // Replace with your image URL
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -313,7 +314,7 @@ class _ProfileState extends State<Profile> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const EditProfile(),
+              builder: (context) => EditProfile(user: widget.user),
             ),
           );
         }
