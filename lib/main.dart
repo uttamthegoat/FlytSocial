@@ -50,30 +50,40 @@ class MainPage extends StatefulWidget {
 
 class MainAppState extends State<MainPage> {
   late Map<String, dynamic> curUser;
+  late Future<void> userFuture;
 
   @override
   void initState() {
     super.initState();
-    initializeUser();
+    userFuture = initializeUser();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
+      body: FutureBuilder<void>(
+        future: userFuture,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return const BottomNavBar();
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
           } else {
-            return const AppAuth();
+            return StreamBuilder<User?>(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return const BottomNavBar();
+                } else {
+                  return const AppAuth();
+                }
+              },
+            );
           }
         },
       ),
     );
   }
 
-  initializeUser() async {
+  Future<void> initializeUser() async {
     await Provider.of<UserProvider>(context, listen: false).setUserInfo();
   }
 }
