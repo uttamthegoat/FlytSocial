@@ -207,7 +207,7 @@ class _UserListState extends State<UserList> {
           leading: CircleAvatar(
             backgroundImage: NetworkImage(user['imageUrl'] == ''
                 ? 'https://via.placeholder.com/150'
-                : 'https://via.placeholder.com/150'), // Placeholder for user image
+                : user['imageUrl']), // Placeholder for user image
           ),
           title: GestureDetector(
             onTap: () {

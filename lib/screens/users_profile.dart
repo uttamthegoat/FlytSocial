@@ -129,7 +129,7 @@ class _UserProfilePageState extends State<UserProfile> {
                     radius: 45,
                     backgroundImage: NetworkImage(user['imageUrl'] == ''
                         ? 'https://via.placeholder.com/150'
-                        : 'https://via.placeholder.com/150'),
+                        : user['imageUrl']??''),
                   ),
                   const SizedBox(width: 16),
                   Expanded(

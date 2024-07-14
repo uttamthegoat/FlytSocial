@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flytsocial/screens/edit_post.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class Home extends StatefulWidget {
   final dynamic currentUser;
@@ -12,42 +13,20 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late List<Map<String, dynamic>> postResults = [
-    {
-      'postId': '1',
-      'caption': 'Nature is lovely',
-      'tags': ['nature', 'hills'],
-      'postImageUrl': 'https://via.placeholder.com/152',
-      'userId': '12'
-    },
-    {
-      'postId': '2',
-      'caption': 'Adventure awaits',
-      'tags': ['adventure', 'travel'],
-      'postImageUrl': 'https://via.placeholder.com/153',
-      'userId': '13'
-    },
-    {
-      'postId': '3',
-      'caption': 'City life',
-      'tags': ['city', 'urban'],
-      'postImageUrl': 'https://via.placeholder.com/154',
-      'userId': '14'
-    }
-  ];
+  late List<Map<String, dynamic>> postResults = [];
   late String currentUserId = '';
 
   @override
   void initState() {
     super.initState();
     currentUserId = widget.currentUser['userId'];
-    // fetchFollowingPosts();
+    fetchFollowingPosts();
   }
 
   Future<void> fetchFollowingPosts() async {
     List<Map<String, dynamic>> posts = [];
     currentUserId = widget.currentUser['userId'];
-    print(currentUserId);
+    // print(currentUserId);
     try {
       // Step 1: Get the list of user IDs that the current user follows
       QuerySnapshot followSnapshot = await FirebaseFirestore.instance
@@ -71,10 +50,10 @@ class _HomeState extends State<Home> {
           return postData;
         }).toList();
 
-        print(posts);
         setState(() {
           postResults = posts;
         });
+        print(posts);
       }
     } catch (e) {
       print('Error fetching following posts: $e');
@@ -83,21 +62,25 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.currentUser);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
-      body: ListView.builder(
-        itemCount: postResults.length,
-        itemBuilder: (context, index) {
-          return PostWidget(
-            post: postResults[index],
-            curUserId: currentUserId,
-          );
-        },
-      ),
-    );
+        appBar: AppBar(
+          title: const Text('Home'),
+        ),
+        body: Container(
+            margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+            child: SingleChildScrollView(
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: postResults.length,
+                itemBuilder: (context, index) {
+                  return PostWidget(
+                    post: postResults[index],
+                    curUserId: currentUserId,
+                  );
+                },
+              ),
+            )));
   }
 }
 
@@ -119,6 +102,7 @@ class _PostItemState extends State<PostWidget> {
   late Map<String, dynamic> postItem = {};
   late Map<String, String> postOwner = {};
   late bool loading = false;
+  late bool postLoading = false;
 
   @override
   void initState() {
@@ -127,11 +111,16 @@ class _PostItemState extends State<PostWidget> {
   }
 
   void setPostInfo() async {
-    postItem = widget.post;
+    setState(() {
+      postItem = widget.post;
+      curUserId = widget.curUserId;
+    });
     final currentPostId = postItem['postId'];
-    curUserId = widget.curUserId;
     await getLikeInfo(currentPostId, curUserId);
-    setPostOwner();
+    await setPostOwner();
+    setState(() {
+      postLoading = true;
+    });
   }
 
   Future<void> getLikeInfo(String currentPostId, String curUserId) async {
@@ -161,7 +150,7 @@ class _PostItemState extends State<PostWidget> {
     }
   }
 
-  void setPostOwner() async {
+  Future<void> setPostOwner() async {
     final userId = postItem['userId'];
     try {
       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
@@ -179,7 +168,7 @@ class _PostItemState extends State<PostWidget> {
         postOwner = userInfo;
         loading = true;
       });
-      print(postOwner);
+      print(" this is the postOwner $postOwner");
     } catch (e) {
       print('Error fetching user details: $e');
     }
@@ -326,111 +315,130 @@ class _PostItemState extends State<PostWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Posts'),
-        backgroundColor: const Color.fromARGB(255, 119, 76, 175),
-      ),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-          child: Container(
-        margin: const EdgeInsets.fromLTRB(0, 0, 0, 60),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: NetworkImage(loading
-                            ? (postOwner['imageUrl'] == ''
-                                ? 'https://via.placeholder.com/150'
-                                : postOwner['imageUrl']!)
-                            : 'https://via.placeholder.com/150'),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 30),
+      child: postLoading
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // user info
+                Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundImage: NetworkImage(loading
+                                ? (postOwner['imageUrl'] == ''
+                                    ? 'https://via.placeholder.com/150'
+                                    : postOwner['imageUrl']!)
+                                : 'https://via.placeholder.com/150'),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            loading ? postOwner['username'] ?? '' : 'Username',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ]),
+                        // show this only if the user owns the post
+                        // curUserId == post.userid ==> show
+                        if (curUserId == postItem['userId'])
+                          GestureDetector(
+                            onTap: () => _showBottomSheet(context, postItem),
+                            child: const Icon(Icons.more_vert_sharp),
+                          )
+                      ],
+                    )),
+                // Post Image
+                Container(
+                  width: double.infinity, // Full width of the device
+                  // color: Colors.black,
+                  child: CachedNetworkImage(
+                    imageUrl: postItem['postImageUrl'],
+                    fit: BoxFit
+                        .fitWidth, // Ensure the image fits the device width
+                    placeholder: (context, url) => const Center(
+                      child: SizedBox(
+                        height: 100,
+                        width: 100,
+                        child: SizedBox(
+                          height: 60,
+                          width: 60,
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
+                  ),
+                ),
+                // Like and Comment Buttons
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              _isLiked ? Icons.favorite : Icons.favorite_border,
+                              color: _isLiked ? Colors.red : Colors.black,
+                            ),
+                            onPressed: _likePost,
+                          ),
+                          Text('$_likeCount')
+                        ],
                       ),
                       const SizedBox(width: 10),
-                      Text(
-                        loading ? postOwner['username'] ?? '' : 'Username',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ]),
-                    // show this only if the user owns the post
-                    // curUserId == post.userid ==> show
-                    if (curUserId == postItem['userId'])
-                      GestureDetector(
-                        onTap: () => _showBottomSheet(context, postItem),
-                        child: const Icon(Icons.more_vert_sharp),
-                      )
-                  ],
-                )),
-            // Post Image
-             AspectRatio(
-                aspectRatio: 1, // Adjust the aspect ratio as needed
-                child: Image.network(
-                  postItem['postImageUrl'],
-                  fit: BoxFit.contain, // Ensure the whole image is visible
-                ),
-              ),
-            // Like and Comment Buttons
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Row(
-                    children: [
                       IconButton(
-                        icon: Icon(
-                          _isLiked ? Icons.favorite : Icons.favorite_border,
-                          color: _isLiked ? Colors.red : Colors.black,
-                        ),
-                        onPressed: _likePost,
+                        icon: const Icon(Icons.comment),
+                        onPressed: () => _showComments(context),
                       ),
-                      Text('$_likeCount')
                     ],
                   ),
-                  const SizedBox(width: 10),
-                  IconButton(
-                    icon: const Icon(Icons.comment),
-                    onPressed: () => _showComments(context),
-                  ),
-                ],
-              ),
+                ),
+                // Post Description
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          postItem['caption'],
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                        Row(
+                          children: postItem['tags'].map<Widget>((tag) {
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                  right:
+                                      8.0), // Adjust the padding value as needed
+                              child: Text(
+                                '#$tag',
+                                style: const TextStyle(color: Colors.blue),
+                              ),
+                            );
+                          }).toList(),
+                        )
+                      ],
+                    )),
+              ],
+            )
+          : const Center(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 200),
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: CircularProgressIndicator(),
+                  )),
             ),
-            // Post Description
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      postItem['caption'],
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
-                    Row(
-                      children: postItem['tags'].map<Widget>((tag) {
-                        return Padding(
-                          padding: const EdgeInsets.only(
-                              right: 8.0), // Adjust the padding value as needed
-                          child: Text(
-                            '#$tag',
-                            style: const TextStyle(color: Colors.blue),
-                          ),
-                        );
-                      }).toList(),
-                    )
-                  ],
-                )),
-          ],
-        ),
-      )),
     );
   }
 }
@@ -577,14 +585,14 @@ class _CommentSectionState extends State<CommentSection> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(14.0),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _commentController,
                     decoration: InputDecoration(
-                      hintText: 'Search here...',
+                      hintText: 'Comment here...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: const BorderSide(color: Colors.black),

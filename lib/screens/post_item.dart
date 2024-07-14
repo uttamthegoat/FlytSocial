@@ -332,7 +332,8 @@ class _PostItemState extends State<PostItem> {
                 )),
           ],
         ),
-      )),
+      ),
+      ),
     );
   }
 }
@@ -479,14 +480,14 @@ class _CommentSectionState extends State<CommentSection> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(14.0),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _commentController,
                     decoration: InputDecoration(
-                      hintText: 'Search here...',
+                      hintText: 'Comment here...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: const BorderSide(color: Colors.black),
