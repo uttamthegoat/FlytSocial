@@ -64,7 +64,12 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Home'),
+          title: const Text(
+            'Home',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 23, color: Colors.white),
+          ),
+          backgroundColor: Colors.black,
         ),
         body: Container(
             margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),

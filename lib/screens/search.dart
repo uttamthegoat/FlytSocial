@@ -130,10 +130,11 @@ class _SearchScreenState extends State<AppSearch>
         appBar: AppBar(
           title: const Text(
             'Search',
-            // style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23, color: Colors.white),
           ),
+          backgroundColor: Colors.black,
         ),
-        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+        backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Column(
             children: [
@@ -145,17 +146,17 @@ class _SearchScreenState extends State<AppSearch>
                     hintText: 'Search here...',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Colors.white),
+                      borderSide: const BorderSide(color: Colors.black),
                     ),
                     hintStyle:
-                        const TextStyle(color: Colors.white, fontSize: 18),
+                        const TextStyle(color: Colors.black, fontSize: 18),
                     suffixIcon: IconButton(
-                      icon: const Icon(Icons.clear, color: Colors.white),
+                      icon: const Icon(Icons.clear, color: Colors.black),
                       onPressed: _clearSearch,
                     ),
                   ),
-                  style: const TextStyle(color: Colors.white, fontSize: 18.0),
-                  cursorColor: Colors.white,
+                  style: const TextStyle(color: Colors.black, fontSize: 18.0),
+                  cursorColor: Colors.black,
                   onSubmitted: (String value) => _searchSubmit(context, value),
                 ),
               ),
@@ -182,7 +183,7 @@ class _SearchScreenState extends State<AppSearch>
                             style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.black,
                             ),
                           ),
                         ),
@@ -240,7 +241,7 @@ class _SearchScreenState extends State<AppSearch>
       child: Text(
         notFoundText,
         style: const TextStyle(
-            fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
+            fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black),
       ),
     );
   }
@@ -259,7 +260,7 @@ class UserTile extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: const Color.fromARGB(255, 186, 183, 183)),
+        border: Border.all(color: const Color.fromARGB(255, 83, 82, 82)),
       ),
       child: GestureDetector(
         onTap: () {
@@ -297,14 +298,14 @@ class UserTile extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                   Text(
                     user['name'] ?? defaultName,
                     style: const TextStyle(
                       fontSize: 14.0,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                 ],

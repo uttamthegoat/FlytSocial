@@ -51,7 +51,6 @@ class _EditProfilePageState extends State<EditProfile> {
       setState(() {
         usedUsernames = usernames;
       });
-      print(usedUsernames);
     } catch (e) {
       print('Error fetching usernames: $e');
     }
@@ -211,7 +210,13 @@ class _EditProfilePageState extends State<EditProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: const Text('Edit Profile',
+        style: TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 23, color: Colors.white),),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -219,7 +224,7 @@ class _EditProfilePageState extends State<EditProfile> {
               onTap: _resetForm,
               child: const Text(
                 'Reset',
-                style: TextStyle(color: Colors.black, fontSize: 18),
+                style: TextStyle(color: Colors.grey, fontSize: 18),
               ),
             ),
           ),

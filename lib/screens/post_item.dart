@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flytsocial/screens/edit_post.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PostItem extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -230,109 +231,133 @@ class _PostItemState extends State<PostItem> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Posts'),
-        backgroundColor: const Color.fromARGB(255, 119, 76, 175),
+        title: const Text(
+          'Posts',
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 23, color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-          child: Container(
-        margin: const EdgeInsets.fromLTRB(0, 0, 0, 60),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(0, 0, 0, 60),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(children: [
+                        !loading
+                            ? Shimmer.fromColors(
+                                baseColor: Colors.grey.shade300,
+                                highlightColor: Colors.grey.shade100,
+                                child: Container(
+                                  width: 200,
+                                  height: 24,
+                                  color: Colors.grey,
+                                ),
+                              )
+                            : CircleAvatar(
+                                radius: 20,
+                                backgroundImage: NetworkImage(
+                                    (postOwner['imageUrl'] == ''
+                                        ? 'https://via.placeholder.com/150'
+                                        : postOwner['imageUrl']!)),
+                              ),
+                        const SizedBox(width: 10),
+                        loading
+                            ? Text(
+                                postOwner['username'] ?? '',
+                                style: const TextStyle(fontSize: 20),
+                              )
+                            : Shimmer.fromColors(
+                                baseColor: Colors.grey.shade300,
+                                highlightColor: Colors.grey.shade100,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 24,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                      ]),
+                      // show this only if the user owns the post
+                      // curUserId == post.userid ==> show
+                      if (curUserId == postItem['userId'])
+                        GestureDetector(
+                          onTap: () => _showBottomSheet(context, postItem),
+                          child: const Icon(Icons.more_vert_sharp),
+                        )
+                    ],
+                  )),
+              // Post Image
+              Container(
+                width: double.infinity, // Full width of the screen
+                child: FittedBox(
+                  fit: BoxFit.contain, // Ensure the whole image is visible
+                  child: Image.network(postItem['postImageUrl']),
+                ),
+              ),
+              // Like and Comment Buttons
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: NetworkImage(loading
-                            ? (postOwner['imageUrl'] == ''
-                                ? 'https://via.placeholder.com/150'
-                                : postOwner['imageUrl']!)
-                            : 'https://via.placeholder.com/150'),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        loading ? postOwner['username'] ?? '' : 'Username',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ]),
-                    // show this only if the user owns the post
-                    // curUserId == post.userid ==> show
-                    if (curUserId == postItem['userId'])
-                      GestureDetector(
-                        onTap: () => _showBottomSheet(context, postItem),
-                        child: const Icon(Icons.more_vert_sharp),
-                      )
-                  ],
-                )),
-            // Post Image
-            Container(
-              width: double.infinity, // Full width of the screen
-              child: FittedBox(
-                fit: BoxFit.contain, // Ensure the whole image is visible
-                child: Image.network(postItem['postImageUrl']),
-              ),
-            ),
-            // Like and Comment Buttons
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          _isLiked ? Icons.favorite : Icons.favorite_border,
-                          color: _isLiked ? Colors.red : Colors.black,
-                        ),
-                        onPressed: _likePost,
-                      ),
-                      Text('$_likeCount')
-                    ],
-                  ),
-                  const SizedBox(width: 10),
-                  IconButton(
-                    icon: const Icon(Icons.comment),
-                    onPressed: () => _showComments(context),
-                  ),
-                ],
-              ),
-            ),
-            // Post Description
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      postItem['caption'],
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
                     Row(
-                      children: postItem['tags'].map<Widget>((tag) {
-                        return Padding(
-                          padding: const EdgeInsets.only(
-                              right: 8.0), // Adjust the padding value as needed
-                          child: Text(
-                            '#$tag',
-                            style: const TextStyle(color: Colors.blue),
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            _isLiked ? Icons.favorite : Icons.favorite_border,
+                            color: _isLiked ? Colors.red : Colors.black,
                           ),
-                        );
-                      }).toList(),
-                    )
+                          onPressed: _likePost,
+                        ),
+                        Text('$_likeCount')
+                      ],
+                    ),
+                    const SizedBox(width: 10),
+                    IconButton(
+                      icon: const Icon(Icons.comment),
+                      onPressed: () => _showComments(context),
+                    ),
                   ],
-                )),
-          ],
+                ),
+              ),
+              // Post Description
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        postItem['caption'],
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Row(
+                        children: postItem['tags'].map<Widget>((tag) {
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                                right:
+                                    8.0), // Adjust the padding value as needed
+                            child: Text(
+                              '#$tag',
+                              style: const TextStyle(color: Colors.blue),
+                            ),
+                          );
+                        }).toList(),
+                      )
+                    ],
+                  )),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

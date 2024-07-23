@@ -157,13 +157,22 @@ class _EditPostState extends State<EditPost> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final postOwner = Provider.of<UserProvider>(context).currentUser;
     final String curUserId = postOwner['userId'];
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit post')),
+      appBar: AppBar(
+        title: const Text(
+          'Edit post',
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 23, color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -274,12 +283,12 @@ class _EditPostState extends State<EditPost> {
                 children: [
                   ElevatedButton(
                     onPressed: () => _submitForm(curUserId),
-                    child: const Text('Create post'),
+                    child: const Text('Save changes'),
                   ),
                   ElevatedButton(
                     onPressed: _clearForm,
-                    style: ElevatedButton.styleFrom(iconColor: Colors.red),
-                    child: const Text('Cancel'),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: const Text('Cancel changes', style: TextStyle(color: Colors.white),),
                   ),
                 ],
               ),

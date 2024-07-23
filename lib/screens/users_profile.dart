@@ -115,7 +115,13 @@ class _UserProfilePageState extends State<UserProfile> {
     final user = widget.user;
     return Scaffold(
       appBar: AppBar(
-        title: Text(user['username'] ?? 'Unknown User'),
+        title: Text(user['username'] ?? 'Unknown User',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 23, color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Change the color here
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -160,7 +166,7 @@ class _UserProfilePageState extends State<UserProfile> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Text(
                       '${user['name']}',
                       style: const TextStyle(
@@ -169,7 +175,7 @@ class _UserProfilePageState extends State<UserProfile> {
                   ),
                   const SizedBox(height: 4),
                   Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Text(
                         '${user['bio']}',
                         style: const TextStyle(

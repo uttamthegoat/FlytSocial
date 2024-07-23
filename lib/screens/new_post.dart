@@ -50,7 +50,8 @@ class _NewPostState extends State<NewPost> {
     if (_formKey.currentState!.validate() && _image != null) {
       String? postImageUrl = await _uploadImage(_image!, userId);
       if (postImageUrl != null) {
-        CollectionReference posts = FirebaseFirestore.instance.collection('posts');
+        CollectionReference posts =
+            FirebaseFirestore.instance.collection('posts');
         await posts.add({
           'userId': userId,
           'postImageUrl': postImageUrl,
@@ -90,8 +91,15 @@ class _NewPostState extends State<NewPost> {
     final postOwner = Provider.of<UserProvider>(context).currentUser;
     final String curUserId = postOwner['userId'];
     return Scaffold(
-      appBar: AppBar(title: const Text('Create a new post')),
-      body:  Padding(
+      appBar: AppBar(
+        title: const Text(
+          'Create a new post',
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 23, color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+      ),
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -206,7 +214,7 @@ class _NewPostState extends State<NewPost> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed:  () => _submitForm(curUserId),
+                    onPressed: () => _submitForm(curUserId),
                     child: const Text('Create post'),
                   ),
                   ElevatedButton(

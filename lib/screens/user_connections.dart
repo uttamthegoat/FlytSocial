@@ -125,12 +125,27 @@ class _UserConnectionsState extends State<UserConnections>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Connections'),
+        title: const Text(
+          'Connections',
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 23, color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Change the color here
+        ),
         bottom: TabBar(
           controller: _tabController,
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicatorColor: const Color.fromARGB(255, 170, 172, 255),
+          indicatorWeight: 5,
           tabs: const [
-            Tab(text: 'Followers'),
-            Tab(text: 'Following'),
+            Tab(
+                child: Text('Followers',
+                    style: TextStyle(color: Colors.white, fontSize: 17))),
+            Tab(
+                child: Text('Following',
+                    style: TextStyle(color: Colors.white, fontSize: 17))),
           ],
         ),
       ),

@@ -84,8 +84,12 @@ class _ProfileState extends State<Profile> {
     final curUser = currentUser;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Colors.deepPurple,
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 23, color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
       ),
       body: RefreshIndicator(
         onRefresh: _refreshProfile,

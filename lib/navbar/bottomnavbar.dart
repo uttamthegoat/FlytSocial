@@ -19,6 +19,7 @@ int _currentIndex = 0;
 
 class _BottomNavBarState extends State<BottomNavBar> {
   late PageController pageController;
+  late int activePage = 0;
 
   @override
   void initState() {
@@ -37,6 +38,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   onPageChanged(int page) {
     setState(() {
       _currentIndex = page;
+      activePage = page;
     });
   }
 
@@ -53,27 +55,33 @@ class _BottomNavBarState extends State<BottomNavBar> {
       bottomNavigationBar: Container(
           child: CurvedNavigationBar(
         index: _currentIndex,
+        color: Colors.black,
+        buttonBackgroundColor: Colors.black,
         backgroundColor: Colors.transparent,
-        items: const [
+        items: [
           Icon(
             Icons.home,
-            size: 30,
+            color: Colors.white,
+            size: activePage == 0 ? 35 : 30,
           ),
           Icon(
             Icons.search,
-            size: 30,
+            color: Colors.white,
+            size: activePage == 1 ? 35 : 30,
           ),
           Icon(
             Icons.add,
-            size: 30,
+            color: Colors.white,
+            size: activePage == 2 ? 35 : 30,
           ),
-          Icon(
-            Icons.info_outline,
-            size: 30,
-          ),
+          // Icon(
+          //   Icons.info_outline,
+          //   size: 30,
+          // ),
           Icon(
             Icons.person,
-            size: 30,
+            color: Colors.white,
+            size: activePage == 3 ? 35 : 30,
           ),
         ],
         onTap: navigationTapped,
@@ -85,7 +93,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
           Home(currentUser: curUser),
           const AppSearch(),
           NewPost(),
-          const About(),
+          // const About(),
           Profile(
             user: curUser,
           ),
