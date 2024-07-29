@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flytsocial/navbar/bottomnavbar.dart';
 import 'package:flytsocial/screens/welcome_page.dart';

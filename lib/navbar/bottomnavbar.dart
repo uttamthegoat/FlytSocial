@@ -66,6 +66,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
             size: activePage == 0 ? 35 : 30,
           ),
           Icon(
+            Icons.home,
+            color: Colors.white,
+            size: activePage == 3 ? 35 : 30,
+          ),
+          Icon(
             Icons.search,
             color: Colors.white,
             size: activePage == 1 ? 35 : 30,
@@ -74,11 +79,6 @@ class _BottomNavBarState extends State<BottomNavBar> {
             Icons.add,
             color: Colors.white,
             size: activePage == 2 ? 35 : 30,
-          ),
-          Icon(
-            Icons.home,
-            color: Colors.white,
-            size: activePage == 3 ? 35 : 30,
           ),
           Icon(
             Icons.person,
@@ -92,10 +92,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
         controller: pageController,
         onPageChanged: onPageChanged,
         children: [
-          const About(),
+          About(),
+          Home(currentUser: curUser),
           const AppSearch(),
           NewPost(),
-          Home(currentUser: curUser),
           Profile(
             user: curUser,
           ),
