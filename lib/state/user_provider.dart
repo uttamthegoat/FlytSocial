@@ -31,13 +31,14 @@ Future<dynamic> getUser(String key) async {
 
 class UserProvider with ChangeNotifier {
   User? _user;
-
+  bool firstTimeLog = true;
   dynamic curUser;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   User? get user => _user;
   // this value is used in the application
   get currentUser => curUser;
+  get firstTime => firstTimeLog;
 
   UserProvider() {
     _auth.authStateChanges().listen(_onAuthStateChanged);
@@ -110,6 +111,7 @@ class UserProvider with ChangeNotifier {
           newUser['imageUrl'] = snapshot.docs.first.data()['imageUrl'];
           newUser['bio'] = snapshot.docs.first.data()['bio'];
           newUser['username'] = snapshot.docs.first.data()['username'];
+          firstTimeLog = true;
         } else {
           final checkEmail = _user?.email;
           final snapshot = await FirebaseFirestore.instance
@@ -122,6 +124,7 @@ class UserProvider with ChangeNotifier {
           newUser['imageUrl'] = snapshot.docs.first.data()['imageUrl'];
           newUser['bio'] = snapshot.docs.first.data()['bio'];
           newUser['username'] = snapshot.docs.first.data()['username'];
+          firstTimeLog = false;
         }
         curUser = newUser;
         storeUser('curuser', curUser);
@@ -181,6 +184,7 @@ class UserProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString('curuser');
     curUser = json.decode(jsonString!);
+    print("jaon code ${json.decode(jsonString)}");
   }
 
   Future<void> updateUser(Map<String, dynamic> updatedUser) async {

@@ -49,6 +49,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     final curUser = Provider.of<UserProvider>(context).currentUser;
+    print("navbar $curUser");
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.black,
@@ -60,7 +61,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
         backgroundColor: Colors.transparent,
         items: [
           Icon(
-            Icons.home,
+            Icons.info_outline,
             color: Colors.white,
             size: activePage == 0 ? 35 : 30,
           ),
@@ -74,14 +75,15 @@ class _BottomNavBarState extends State<BottomNavBar> {
             color: Colors.white,
             size: activePage == 2 ? 35 : 30,
           ),
-          // Icon(
-          //   Icons.info_outline,
-          //   size: 30,
-          // ),
+          Icon(
+            Icons.home,
+            color: Colors.white,
+            size: activePage == 3 ? 35 : 30,
+          ),
           Icon(
             Icons.person,
             color: Colors.white,
-            size: activePage == 3 ? 35 : 30,
+            size: activePage == 4 ? 35 : 30,
           ),
         ],
         onTap: navigationTapped,
@@ -90,10 +92,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
         controller: pageController,
         onPageChanged: onPageChanged,
         children: [
-          Home(currentUser: curUser),
+          const About(),
           const AppSearch(),
           NewPost(),
-          // const About(),
+          Home(currentUser: curUser),
           Profile(
             user: curUser,
           ),

@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flytsocial/navbar/bottomnavbar.dart';
+import 'package:flytsocial/screens/welcome_page.dart';
 import 'package:flytsocial/state/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_button/sign_in_button.dart';
@@ -17,7 +19,7 @@ class _HomePageState extends State<AppAuth> {
     final user = Provider.of<UserProvider>(context).user;
     return Scaffold(
       appBar: user == null ? AppBar() : null,
-      body: user != null ? const BottomNavBar() : _AuthPage(context),
+      body: user != null ? const MainPage() : _AuthPage(context),
     );
   }
 
@@ -64,7 +66,9 @@ class _HomePageState extends State<AppAuth> {
               },
             ),
           ),
-          const SizedBox(height: 50,),
+          const SizedBox(
+            height: 50,
+          ),
           SizedBox(
             width: double.infinity,
             child: Image.asset(
@@ -75,5 +79,59 @@ class _HomePageState extends State<AppAuth> {
         ],
       ),
     );
+  }
+
+  // Widget firstLog(BuildContext context) {
+  //   print(" this is the current user"+Provider.of<UserProvider>(context).currentUser);
+  //   return FutureBuilder<void>(
+  //     future: userFuture,
+  //     builder: (context, snapshot) {
+  //       if (snapshot.connectionState == ConnectionState.waiting) {
+  //         return const Center(child: CircularProgressIndicator());
+  //       } else {
+  //         return const BottomNavBar(); // Replace with your BottomNavBar widget
+  //       }
+  //     },
+  //   );
+  // }
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+  @override
+  MainAppState createState() => MainAppState();
+}
+
+class MainAppState extends State<MainPage> {
+  late Future<void> userFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    userFuture = initializeUser();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: FutureBuilder<void>(
+        future: userFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            if (Provider.of<UserProvider>(context).firstTime) {
+              return WelcomePage();
+            } else {
+              return const BottomNavBar();
+            }
+          }
+        },
+      ),
+    );
+  }
+
+  Future<void> initializeUser() async {
+    await Provider.of<UserProvider>(context, listen: false).setUserInfo();
   }
 }

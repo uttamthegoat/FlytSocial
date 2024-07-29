@@ -71,9 +71,7 @@ class _HomeState extends State<Home> {
           ),
           backgroundColor: Colors.black,
         ),
-        body: Container(
-            margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-            child: SingleChildScrollView(
+        body: SingleChildScrollView(
               child: ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -85,7 +83,7 @@ class _HomeState extends State<Home> {
                   );
                 },
               ),
-            )));
+            ));
   }
 }
 
